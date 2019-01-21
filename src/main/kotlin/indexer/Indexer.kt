@@ -35,7 +35,8 @@ class Indexer {
                         page.rawIndices[word]!!
                     )
 
-                    index.addTermWithDocument(word, doc)
+                    if (!page.URL.isNullOrEmpty())
+                        index.addTermWithDocument(word, doc)
                 }
             }
 
