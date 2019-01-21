@@ -1,12 +1,17 @@
 package indexer
 
 import crawler.Page
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class Indexer {
 
+    private val LOGGER: Logger = LoggerFactory.getLogger(Indexer::class.java)
+
     fun index(page: Page) {
+        LOGGER.info("Indexing {}", page.URL)
         index.addDocument(getDocument(page))
     }
 

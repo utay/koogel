@@ -20,6 +20,7 @@ dependencies {
     compile(kotlin("stdlib-jdk8"))
 
     implementation("org.jsoup:jsoup:1.11.3")
+    implementation("org.slf4j:slf4j-log4j12:1.7.25")
 }
 
 tasks.withType<KotlinCompile> {
