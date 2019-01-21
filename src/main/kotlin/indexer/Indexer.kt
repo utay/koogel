@@ -5,6 +5,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class Indexer {
+
     fun index(page: Page) {
         val doc = Document(page.URL, HashMap())
 
