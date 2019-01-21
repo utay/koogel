@@ -561,7 +561,7 @@ class Lexer {
             ))
 
         private fun isStopWord(word: String) = stopwords.contains(word)
-        private fun removePunctuationsAndSpaces(word: String): String =
+        fun removePunctuationsAndSpaces(word: String): String =
             word.replace(Regex("[^a-zA-Z]"), "").toLowerCase()
         private fun stemWord(word: String): String = Stemmer().stem(word)
 
