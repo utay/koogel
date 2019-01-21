@@ -1,8 +1,6 @@
 package indexer
 
 import crawler.Page
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class Indexer {
 

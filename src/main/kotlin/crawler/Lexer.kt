@@ -4,9 +4,6 @@ package crawler
 class Lexer {
 
     companion object {
-        fun isStopWord(word: String) = stopwords.contains(word)
-        fun removePunctuationsAndSpaces(word: String): String = word.replace(Regex("[^a-zA-Z]"), "").toLowerCase()
-
         private val stopwords = arrayOf(
             "",
             "—",
@@ -559,5 +556,37 @@ class Lexer {
             "yourselves",
             "zero"
         )
+
+        private fun isStopWord(word: String) = stopwords.contains(word)
+        private fun removePunctuationsAndSpaces(word: String): String =
+            word.replace(Regex("[^a-zA-Z]"), "").toLowerCase()
+        private fun stemWord(word: String): String = Stemmer().stem(word)
+
+        fun lex(content: String, url: String? = null): Page {
+
+            val page = Page(url)
+            page.rawContent = content
+
+            val splitedText = content.split(" ")
+            var index = 0
+            var nextIndex: Int
+            for (word in splitedText) {
+                nextIndex = index + word.count() + 1
+
+                var cleanword = removePunctuationsAndSpaces(word)
+                cleanword = stemWord(cleanword)
+
+                if (!isStopWord(cleanword)) {
+                    if (page.rawIndices.containsKey(cleanword)) {
+                        page.rawIndices[cleanword]?.add(index)
+                    } else {
+                        page.rawIndices[cleanword] = arrayListOf(index)
+                    }
+                    page.content.add(cleanword)
+                }
+                index = nextIndex
+            }
+            return page
+        }
     }
 }
