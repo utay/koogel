@@ -9,7 +9,6 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import kotlin.math.abs
 import kotlin.math.log10
-import kotlin.math.sqrt
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.HashMap
@@ -17,15 +16,6 @@ import kotlin.collections.HashMap
 class Search {
 
     private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
-
-    private fun magnitude(list: Vector<Double>): Double {
-        return sqrt(list.map { d -> d * d }.sum())
-    }
-
-    private fun normalizeVector(list: Vector<Double>): Vector<Double> {
-        val magnitude = magnitude(list)
-        return if (magnitude == 0.0) list else Vector(list.map { d -> d / magnitude })
-    }
 
     private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
@@ -35,24 +25,27 @@ class Search {
     }
 
     private fun cosSimularity(query: Vector<Double>, doc: Vector<Double>): Double {
-        var dot: Double = 0.0
+        var dot = 0.0
         query.forEachIndexed { index, v ->
             dot += v * doc[index]
         }
-        val queryNorm = magnitude(query)
-        val docNorm = magnitude(doc)
-        return dot / (queryNorm * docNorm)
+        val queryNorm = Utils.magnitude(query)
+        val docNorm = Utils.magnitude(doc)
+        return if (queryNorm != 0.0 && docNorm != 0.0) dot / (queryNorm * docNorm) else 0.0
     }
 
-    private fun simularity(query: Vector<Double>, docs: HashMap<Document, Vector<Double>>): List<Document> {
+    private fun similarity(query: Vector<Double>, docs: HashMap<Document, Vector<Double>>): List<Document> {
         var result = ArrayList<Pair<Document, Double>>()
+        LOGGER.debug("TF-IDF for query - {}", query.toString())
         docs.forEach { document, vector ->
             result.add(Pair(document, cosSimularity(query, vector)))
         }
+        LOGGER.debug("CosSimilarity for documents - {}", result.map { p -> Pair(p.first.URL, p.second) })
         return result.sortedByDescending { p -> p.second }.map { r -> r.first }
     }
 
     fun searchQuery(query: String): List<Document> {
+        LOGGER.info("Initialize search for query '{}'", query)
         val page = Lexer.lex(query, "")
         val docQuery = Indexer.getDocument(page)
         val documentVectors = HashMap<Document, Vector<Double>>()
@@ -73,8 +66,8 @@ class Search {
             }
         }
 
-        val resDocs = simularity(queryValue, documentVectors)
-        LOGGER.debug("Results for query: {}", resDocs)
+        val resDocs = similarity(queryValue, documentVectors)
+        LOGGER.debug("Results for query: '{}' -> {}", query, resDocs.map { d -> d.URL }.toString())
         return resDocs
     }
 }
