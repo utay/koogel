@@ -34,6 +34,8 @@ class Indexer {
                         pageIndices,
                         page.rawIndices[word]!!
                     )
+
+                    index.addTermWithDocument(word, doc)
                 }
             }
 
