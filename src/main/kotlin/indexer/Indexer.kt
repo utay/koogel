@@ -11,7 +11,7 @@ class Indexer {
 
         for (word in page.content) {
             if (!doc.metadata.containsKey(word)) {
-                val pageIndices = ArrayList<Int>();
+                val pageIndices = ArrayList<Int>()
 
                 for ((index, word2) in page.content.withIndex()) {
                     if (word == word2) {
