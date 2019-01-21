@@ -1,17 +1,20 @@
 package search
 
 import indexer.Document
+import indexer.Indexer
 import indexer.index
-import java.lang.reflect.Array
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.sqrt
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class Search {
+
+    private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
 
     private fun magnitude(list: Vector<Double>): Double {
         return sqrt(list.map { d -> d * d }.sum())
@@ -60,5 +63,6 @@ class Search {
             index.documents.forEachIndexed { index, doc ->  documentVectors[index].add(tfIdf(token, doc)) }
             documentVectors = ArrayList(documentVectors.map { a -> normalizeVector(a) })
         }
+        LOGGER.info(String.format("searchQuery: %s", documentVectors.toString()))
     }
 }
