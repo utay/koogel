@@ -564,5 +564,7 @@ class Lexer {
     fun removePunctuationAndSplit(content: String): List<String> =
         content.replace("[^a-zA-Z ]", "").toLowerCase().split("\\s+")
 
-    fun removeStopWords(content: List<String>): Set<String> = content.subtract(stopwords.toList())
+    fun removeStopWords(content: List<String>): List<String> {
+        return content.filterNot { stopwords.contains(it) }
+    }
 }
