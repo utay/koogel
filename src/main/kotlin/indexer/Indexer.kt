@@ -20,8 +20,8 @@ class Indexer {
 
                 doc.metadata[word] = Metadata(
                     pageIndices.size / page.content.size.toDouble(),
-                    ArrayList(),
-                    pageIndices
+                    pageIndices,
+                    page.rawIndices[word]!!
                 )
             }
         }
