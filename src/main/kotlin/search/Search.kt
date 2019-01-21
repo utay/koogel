@@ -14,7 +14,7 @@ class Search {
     }
 
     fun tfIdf(token: String, doc: Document): Double {
-        val tf: Double = doc.metadata.get(token)?.frequency ?: return 0.0
+        val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
         val numberDocument = index.documents
             .filter { doc -> doc.metadata.containsKey(token) }.size
         val idf = log10(index.documents.size.toDouble() / (1.0 + numberDocument.toDouble()))
