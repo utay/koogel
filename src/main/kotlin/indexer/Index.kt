@@ -1,7 +1,8 @@
 package indexer
 
 class Index {
-    lateinit var documents: ArrayList<Document>
+
+    var documents: ArrayList<Document> = ArrayList()
 
     fun addDocument(doc: Document) {
         documents.add(doc)
