@@ -12,7 +12,7 @@ class Crawler {
     private val LOGGER: Logger = LoggerFactory.getLogger(Crawler::class.java)
     private val crawledUrls = mutableSetOf<String>()
 
-    private fun getContent(url: String) = Jsoup.connect(url).get()
+    fun getContent(url: String) = Jsoup.connect(url).get()
 
     private fun crawlHrefs(document: Document, baseUrl: String) {
         val hrefs: Elements = document.select("a")

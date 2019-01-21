@@ -14,9 +14,9 @@ fun main(args: Array<String>) {
     val url = "https://en.wikipedia.org/wiki/Main_Page"
     val url2 = "https://en.wikipedia.org/wiki/Tata"
     val url3 = "https://en.wikipedia.org/wiki/Jamshedpur"
-    Indexer.index(Lexer.lex(crawl.getContent(url), url))
-    Indexer.index(Lexer.lex(crawl.getContent(url2), url2))
-    Indexer.index(Lexer.lex(crawl.getContent(url3), url3))
+    Indexer.index(Lexer.lex(crawl.getContent(url).text(), url))
+    Indexer.index(Lexer.lex(crawl.getContent(url2).text(), url2))
+    Indexer.index(Lexer.lex(crawl.getContent(url3).text(), url3))
     val s = Search()
-    s.searchQuery(Arrays.asList("day"))
+    s.searchQuery("tata")
 }

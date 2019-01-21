@@ -1,5 +1,6 @@
 package search
 
+import crawler.Lexer
 import indexer.Document
 import indexer.Indexer
 import indexer.index
@@ -51,21 +52,29 @@ class Search {
         return result.sortedByDescending { p -> p.second }.map { r -> r.first }
     }
 
-    fun searchQuery(tokens: List<String>) {
-        var documentVectors = HashMap<Document, Vector<Double>>()
-        var docs = HashSet<Document>()
+    fun searchQuery(query: String): List<Document> {
+        val page = Lexer.lex(query, "")
+        val docQuery = Indexer.getDocument(page)
+        val documentVectors = HashMap<Document, Vector<Double>>()
+        val queryValue = Vector<Double>()
+        val docs = HashSet<Document>()
 
-        for (token in tokens) {
+        for (token in page.content) {
             val documents = index.retroIndex[token] ?: continue
             docs.addAll(documents)
         }
 
         docs.forEach { doc -> documentVectors[doc] = Vector() }
 
-        for (token in tokens) {
+        for (token in page.content) {
+            queryValue.add(tfIdf(token, docQuery, docs))
             docs.forEach { doc ->
                 documentVectors[doc]?.add(tfIdf(token, doc, docs))
             }
         }
+
+        val resDocs = simularity(queryValue, documentVectors)
+        LOGGER.debug("Results for query: {}", resDocs)
+        return resDocs
     }
 }
