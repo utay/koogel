@@ -1,4 +1,5 @@
 package indexer
 
-class Indexer {
+class Index {
+
 }

@@ -1,0 +1,5 @@
+package crawler
+
+class Page {
+
+}
