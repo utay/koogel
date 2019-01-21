@@ -19,7 +19,7 @@ application {
 dependencies {
     compile(kotlin("stdlib-jdk8"))
 
-    compile(kotlin("org.jsoup:jsoup:1.11.3"))
+    implementation("org.jsoup:jsoup:1.11.3")
 }
 
 tasks.withType<KotlinCompile> {
