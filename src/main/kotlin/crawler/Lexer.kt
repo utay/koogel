@@ -558,12 +558,17 @@ class Lexer {
                 "yourself",
                 "yourselves",
                 "zero"
-            ))
+            )
+        )
+
+        private val synonymer = Synonymer()
 
         private fun isStopWord(word: String) = stopwords.contains(word)
         fun removePunctuationsAndSpaces(word: String): String =
             word.replace(Regex("[^a-zA-Z]"), "").toLowerCase()
+
         private fun stemWord(word: String): String = Stemmer().stem(word)
+        private fun replaceSynonyms(word: String) = synonymer.getSynonym(word)
 
         fun lex(content: String, url: String? = null): Page {
 
@@ -577,6 +582,7 @@ class Lexer {
                 nextIndex = index + word.count() + 1
 
                 var cleanword = removePunctuationsAndSpaces(word)
+                cleanword = replaceSynonyms(cleanword)
                 cleanword = stemWord(cleanword)
 
                 if (!isStopWord(cleanword)) {

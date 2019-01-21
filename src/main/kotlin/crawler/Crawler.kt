@@ -46,8 +46,8 @@ class Crawler {
         LOGGER.info("crawling $url")
         try {
             val content = getContent(url)
-            crawlHrefs(content, url)
             val page = Lexer.lex(content.text(), url)
+            crawlHrefs(content, url)
         } catch (e: Exception) {
             LOGGER.error("Error fetching url: $url", e)
         }

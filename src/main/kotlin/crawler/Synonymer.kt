@@ -16,22 +16,26 @@ class Synonymer {
         )
     }
 
+    private var synonyms: HashMap<String, String> = hashMapOf()
+
     init {
         fillMap()
     }
 
-    val synonyms: HashMap<String, String> = hashMapOf()
+    fun getSynonym(word: String): String = synonyms[word] ?: word
 
-    private fun readFileAsLinesUsingBufferedReader(fileName: String): List<String>
-                = File(fileName).bufferedReader().readLines()
 
-    fun fillMap() {
+    private fun readFileAsLinesUsingBufferedReader(fileName: String): List<String> =
+        File(fileName).bufferedReader().readLines()
+
+    private fun fillMap() {
         for (filename in synonymesFiles) {
             val lines = readFileAsLinesUsingBufferedReader(filename)
             for (line in lines.slice(1 until lines.count())) {
                 val tokens = line.split(",")
                 for (i in 5 until tokens.count()) {
-                    synonyms[Lexer.removePunctuationsAndSpaces(tokens[i])] = Lexer.removePunctuationsAndSpaces(tokens[0])
+                    synonyms[Lexer.removePunctuationsAndSpaces(tokens[i])] =
+                            Lexer.removePunctuationsAndSpaces(tokens[0])
                 }
             }
         }
