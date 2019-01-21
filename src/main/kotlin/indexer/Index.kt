@@ -14,6 +14,7 @@ class Index {
             retroIndex[term]?.add(doc)
         } else {
             retroIndex[term] = ArrayList()
+            retroIndex[term]?.add(doc)
         }
     }
 }

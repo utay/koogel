@@ -1,5 +1,6 @@
 package search
 
+import crawler.Lexer
 import indexer.Document
 import indexer.Indexer
 import indexer.index
@@ -11,6 +12,7 @@ import kotlin.math.log10
 import kotlin.math.sqrt
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.collections.HashMap
 
 class Search {
 
@@ -25,10 +27,9 @@ class Search {
         return if (magnitude == 0.0) list else Vector(list.map { d -> d / magnitude })
     }
 
-    private fun tfIdf(token: String, doc: Document): Double {
+    private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
-        val numberDocument = index.documents
-            .filter { doc -> doc.metadata.containsKey(token) }.size
+        val numberDocument = docs.filter { d -> d.metadata.containsKey(token) }.size
         val idf = abs(log10(index.documents.size.toDouble() / (numberDocument.toDouble())))
         return tf * idf
     }
@@ -43,26 +44,37 @@ class Search {
         return dot / (queryNorm * docNorm)
     }
 
-    private fun simularity(query: Vector<Double>, docs: ArrayList<Vector<Double>>): List<Pair<Int, Double>> {
-        var result = Vector<Pair<Int, Double>>()
-        docs.forEachIndexed { index, vector ->
-            result.add(Pair(index, cosSimularity(query, vector)))
+    private fun simularity(query: Vector<Double>, docs: HashMap<Document, Vector<Double>>): List<Document> {
+        var result = ArrayList<Pair<Document, Double>>()
+        docs.forEach { document, vector ->
+            result.add(Pair(document, cosSimularity(query, vector)))
         }
-        return result.sortedByDescending { p -> p.second }
+        return result.sortedByDescending { p -> p.second }.map { r -> r.first }
     }
 
-    fun searchQuery(tokens: List<String>) {
-        var tokensSet = HashSet<String>()
-        var documentVectors = ArrayList<Vector<Double>>()
-        index.documents.forEach { documentVectors.add(Vector<Double>()) }
+    fun searchQuery(query: String): List<Document> {
+        val page = Lexer.lex(query, "")
+        val docQuery = Indexer.getDocument(page)
+        val documentVectors = HashMap<Document, Vector<Double>>()
+        val queryValue = Vector<Double>()
+        val docs = HashSet<Document>()
 
-        for (token in tokens) {
-            if (tokensSet.contains(token))
-                continue
-            tokensSet.add(token)
-            index.documents.forEachIndexed { index, doc ->  documentVectors[index].add(tfIdf(token, doc)) }
-            documentVectors = ArrayList(documentVectors.map { a -> normalizeVector(a) })
+        for (token in page.content) {
+            val documents = index.retroIndex[token] ?: continue
+            docs.addAll(documents)
         }
-        LOGGER.info(String.format("searchQuery: %s", documentVectors.toString()))
+
+        docs.forEach { doc -> documentVectors[doc] = Vector() }
+
+        for (token in page.content) {
+            queryValue.add(tfIdf(token, docQuery, docs))
+            docs.forEach { doc ->
+                documentVectors[doc]?.add(tfIdf(token, doc, docs))
+            }
+        }
+
+        val resDocs = simularity(queryValue, documentVectors)
+        LOGGER.debug("Results for query: {}", resDocs)
+        return resDocs
     }
 }
