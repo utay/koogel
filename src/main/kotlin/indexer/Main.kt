@@ -20,5 +20,5 @@ fun main(args: Array<String>) {
     Indexer.index(Lexer.lex(crawl.getContent(url3).text(), url3))
     Indexer.index(Lexer.lex(crawl.getContent(url4).text(), url4))
     val s = Search()
-    s.searchQuery("company")
+    s.searchQuery("company tata")
 }

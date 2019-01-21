@@ -20,6 +20,8 @@ class Search {
     private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
         val numberDocument = docs.filter { d -> d.metadata.containsKey(token) }.size
+        if (numberDocument == 0)
+            return 0.0
         val idf = abs(log10(index.documents.size.toDouble() / (numberDocument.toDouble())))
         return tf * idf
     }
@@ -55,6 +57,11 @@ class Search {
         for (token in page.content) {
             val documents = index.retroIndex[token] ?: continue
             docs.addAll(documents)
+        }
+
+        if (docs.isEmpty()) {
+            LOGGER.info("No results for query '{}'", query)
+            return Collections.emptyList()
         }
 
         docs.forEach { doc -> documentVectors[doc] = Vector() }
