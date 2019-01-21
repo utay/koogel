@@ -30,6 +30,7 @@ build/
 .idea/libraries/Gradle*.xml
 .idea/libraries/Maven*.xml
 .idea/artifacts
+.idea/misc.xml
 .idea/modules
 .idea/runConfigurations/JPS_*.xml
 .idea/libraries
