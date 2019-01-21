@@ -3,21 +3,23 @@ package search
 import indexer.Document
 import indexer.index
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.sqrt
 
 class Search {
 
-    fun normalizeVector(list: Vector<Double>): Vector<Double> {
+    private fun normalizeVector(list: Vector<Double>): Vector<Double> {
         val magnitude = sqrt(list.map { d -> d * d }.sum())
-        return Vector(list.map { d -> d / magnitude })
+        return if (magnitude == 0.0) list else Vector(list.map { d -> d / magnitude })
     }
 
-    fun tfIdf(token: String, doc: Document): Double {
-        val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
+    private fun tfIdf(token: String, doc: Document): Double {
+        val tf: Double = doc.metadata.get(token)?.frequency ?: return 0.0
         val numberDocument = index.documents
             .filter { doc -> doc.metadata.containsKey(token) }.size
-        val idf = log10(index.documents.size.toDouble() / (1.0 + numberDocument.toDouble()))
+        val idf = abs(log10(index.documents.size.toDouble() / (numberDocument.toDouble())))
         return tf * idf
     }
 
@@ -31,5 +33,6 @@ class Search {
             tfIdfs = normalizeVector(tfIdfs)
             tfIdfVectors[token] = tfIdfs
         }
+        println(tfIdfVectors)
     }
 }
