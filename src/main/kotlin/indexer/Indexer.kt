@@ -7,7 +7,11 @@ import kotlin.collections.HashMap
 class Indexer {
 
     fun index(page: Page) {
-        val doc = Document(page.URL, HashMap())
+        index.addDocument(getDocument(page))
+    }
+
+    fun getDocument(page: Page): Document {
+         val doc = Document(page.URL, HashMap())
 
         for (word in page.content) {
             if (!doc.metadata.containsKey(word)) {
@@ -27,6 +31,6 @@ class Indexer {
             }
         }
 
-        index.addDocument(doc)
+        return doc
     }
 }
