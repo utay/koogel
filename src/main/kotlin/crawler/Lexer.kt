@@ -1,12 +1,16 @@
 package crawler
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 
 class Lexer {
 
     companion object {
-        var stopwords = arrayOf(
+        fun isStopWord(word: String) = stopwords.contains(word)
+        fun removePunctuationsAndSpaces(word: String): String = word.replace(Regex("[^a-zA-Z]"), "").toLowerCase()
+
+        private val stopwords = arrayOf(
+            "",
+            "—",
+            "\n",
             "a",
             "as",
             "able",
@@ -555,16 +559,5 @@ class Lexer {
             "yourselves",
             "zero"
         )
-    }
-
-    fun getContent(url: String): Document = Jsoup.connect(url).get()
-
-    fun removeTags(document: Document): String = document.text()
-
-    fun removePunctuationAndSplit(content: String): List<String> =
-        content.replace("[^a-zA-Z ]", "").toLowerCase().split("\\s+")
-
-    fun removeStopWords(content: List<String>): List<String> {
-        return content.filterNot { stopwords.contains(it) }
     }
 }
