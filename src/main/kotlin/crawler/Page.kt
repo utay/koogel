@@ -8,7 +8,7 @@ data class Page(
     var URL: String,
     var content: ArrayList<String> = arrayListOf(),
     var rawContent: String? = null,
-    var textMap: HashMap<String, ArrayList<Int>> = hashMapOf()
+    var rawIndices: HashMap<String, ArrayList<Int>> = hashMapOf()
 ) {
 
     init {
@@ -21,7 +21,6 @@ data class Page(
     }
 
     private fun fillPage() {
-
         if (rawContent == null) {
             println("Error: rawContent should not be null")
             return
@@ -32,14 +31,14 @@ data class Page(
         var nextIndex: Int
         for (word in splitedText) {
             nextIndex = index + word.count() + 1
-            val cleanword = removePunctuationsAndSpaces(word)
-            if (!isStopWord(cleanword)) {
-                if (textMap.containsKey(cleanword)) {
-                    textMap[cleanword]?.add(index)
+            val cleanWord = removePunctuationsAndSpaces(word)
+            if (!isStopWord(cleanWord)) {
+                if (rawIndices.containsKey(cleanWord)) {
+                    rawIndices[cleanWord]?.add(index)
                 } else {
-                    textMap[cleanword] = arrayListOf(index)
+                    rawIndices[cleanWord] = arrayListOf(index)
                 }
-                content.add(cleanword)
+                content.add(cleanWord)
             }
             index = nextIndex
         }
