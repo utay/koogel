@@ -1,5 +1,6 @@
 import org.junit.Test
 import sprink.provider.Prototype
+import sprink.provider.Singleton
 import sprink.sprink
 import java.util.function.Supplier
 
@@ -19,10 +20,10 @@ class BasicSprinkTest {
             bean(Nested(instanceOf(TestService::class.java)))
 
             // Stacks a scope.
-            /*scope {
+            scope {
 
                 // Adds a singleton
-                bean(TestService::class.java, TestServiceBlipImpl()) {
+                bean(TestService::class.java, TestServiceBlipImpl())/* {
 
                     // Define AoP behaviour on the before(Pong)
                     before(TestService::pong.javaMethod) { println("before >> ") }
@@ -44,17 +45,18 @@ class BasicSprinkTest {
 
                     // Adds behaviour after the calls to pong.
                     after(TestService::pong.javaMethod) { println("<< after !") }
-                }
+                }*/
 
                 // Define AoP behaviour around calls to the pong method.
                 provider(Nested::class.java, Singleton(Nested(instanceOf(TestService::class.java))))
-                provider(Nested::class.java, Prototype(Supplier { Nested(instanceOf(TestService::class.java)) }))*/
+                provider(Nested::class.java, Prototype(Supplier { Nested(instanceOf(TestService::class.java)) }))
+            }
         }
+
+
+        // Test call.
+        /*val testService: TestService = instanceOf(TestService::class.java)
+        5 timesDo { testService.ping() }
+        Thread.sleep(5000000)*/
     }
-
-
-    // Test call.
-    /*val testService: TestService = instanceOf(TestService::class.java)
-    5 timesDo { testService.ping() }
-    Thread.sleep(5000000)*/
 }

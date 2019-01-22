@@ -11,9 +11,7 @@ class Sprink {
         scopes.add(Scope())
     }
 
-    fun <T : Any> instanceOf(klass: Class<out T>): T {
-        return scopes.peek().instanceOf(klass)
-    }
+    fun <T : Any> instanceOf(klass: Class<in T>): T = scopes.peek().instanceOf(klass)
 
     fun <T : Any, U : T> bean(klass: Class<in T>, instance: U) {
         scopes.peek().bean(klass, instance)
