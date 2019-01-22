@@ -1,6 +1,6 @@
 package sprink
 
-import sprink.provider.Provider
+import sprink.provider.AnyProvider
 import java.util.*
 
 class Sprink {
@@ -11,7 +11,7 @@ class Sprink {
         scopes.add(Scope())
     }
 
-    fun <T : Any> instanceOf(klass: Class<in T>): T = scopes.peek().instanceOf(klass)
+    fun <T : Any> instanceOf(klass: Class<T>): T = scopes.peek().instanceOf(klass)
 
     fun <T : Any, U : T> bean(klass: Class<in T>, instance: U) {
         scopes.peek().bean(klass, instance)
@@ -21,7 +21,7 @@ class Sprink {
         bean(instance.javaClass, instance)
     }
 
-    fun <T : Any> provider(klass: Class<T>, provider: Provider<T>) {
+    fun <T : Any> provider(klass: Class<T>, provider: AnyProvider<T>) {
         scopes.peek().addProvider(klass, provider)
     }
 

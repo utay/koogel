@@ -1,6 +1,6 @@
 package sprink.provider
 
-interface Provider<out T> {
-    fun getInstance(): T
+interface Provider<T> {
+    fun getInstance(klass: Class<T>): T
     fun clean() = {}
 }

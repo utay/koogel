@@ -2,8 +2,6 @@ package sprink.provider
 
 import java.util.function.Supplier
 
-class Prototype<out T>(private val supplier: Supplier<T>) : Provider<T> {
-    override fun getInstance(): T {
-        return supplier.get()
-    }
+class Prototype<T>(private val supplier: Supplier<T>) : AnyProvider<T>() {
+    override fun createInstance(): T = supplier.get()
 }
