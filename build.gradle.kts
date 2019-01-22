@@ -21,6 +21,7 @@ dependencies {
 
     implementation("org.jsoup:jsoup:1.11.3")
     implementation("org.slf4j:slf4j-log4j12:1.7.25")
+    testCompile("junit:junit:4.11")
 }
 
 tasks.withType<KotlinCompile> {
