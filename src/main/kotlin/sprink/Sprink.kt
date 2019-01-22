@@ -31,6 +31,11 @@ class Sprink {
         scopes.add(scope)
         return scope
     }
+
+    fun unscope() {
+        val scope = scopes.pop()
+        scope.clean()
+    }
 }
 
 fun sprink(init: Sprink.() -> Unit): Sprink {

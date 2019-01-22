@@ -20,7 +20,7 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
         } else {
             method?.invoke(instance, args)
         }
-        
+
         if (afterConsumers.containsKey(method)) {
             afterConsumers[method]?.forEach {
                 it.invoke()

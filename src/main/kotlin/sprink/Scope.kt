@@ -31,4 +31,10 @@ class Scope {
     fun <T : Any> addProvider(klass: Class<in T>, provider: AnyProvider<T>) {
         providers[klass] = provider as AnyProvider<Any>
     }
+
+    fun clean() {
+        providers.forEach {
+            it.value.clean()
+        }
+    }
 }
