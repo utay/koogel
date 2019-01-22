@@ -1,7 +1,9 @@
 package sprink.provider
 
-class Prototype<out T>: Provider<T> {
+import java.util.function.Supplier
+
+class Prototype<out T>(private val supplier: Supplier<T>) : Provider<T> {
     override fun getInstance(): T {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return supplier.get()
     }
 }

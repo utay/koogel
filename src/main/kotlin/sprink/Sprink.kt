@@ -1,5 +1,6 @@
 package sprink
 
+import sprink.provider.Provider
 import java.util.*
 
 class Sprink {
@@ -10,22 +11,26 @@ class Sprink {
         scopes.add(Scope())
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T : Any> instanceOf(klass: Class<out T>): T {
         return scopes.peek().instanceOf(klass)
     }
 
-    fun <T : Any> bean(klass: Class<out T>, instance: T) {
+    fun <T : Any, U : T> bean(klass: Class<in T>, instance: U) {
         scopes.peek().bean(klass, instance)
     }
 
     fun <T : Any> bean(instance: T) {
-        bean(instance::class.java, instance)
+        bean(instance.javaClass, instance)
+    }
+
+    fun <T : Any> provider(klass: Class<T>, provider: Provider<T>) {
+        scopes.peek().addProvider(klass, provider)
     }
 
     fun scope(init: Scope.() -> Unit): Scope {
         val scope = Scope()
         scope.init()
+        scopes.add(scope)
         return scope
     }
 }

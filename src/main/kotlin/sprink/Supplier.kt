@@ -1,5 +1,0 @@
-package sprink
-
-class Supplier {
-
-}

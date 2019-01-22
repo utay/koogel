@@ -1,7 +1,7 @@
 import org.junit.Test
-import sprink.Prototype
-import sprink.Supplier
+import sprink.provider.Prototype
 import sprink.sprink
+import java.util.function.Supplier
 
 class BasicSprinkTest {
 
