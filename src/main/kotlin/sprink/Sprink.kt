@@ -1,8 +1,9 @@
 package sprink
 
-import kotlin.reflect.KClass
-
 class Sprink {
+
+    private val providers: HashMap<Class<Any>, Provider> = hashMapOf()
+    private val instances: HashMap<Class<out Any>, Any> = hashMapOf()
 
     fun <T : Any> instanceOf(klass: Class<T>): T? {
 
@@ -14,16 +15,17 @@ class Sprink {
         return null
     }
 
-    fun <T: Any> bean(klass: Class<T>, instance: T) {
-
+    fun <T : Any> bean(klass: Class<out T>, instance: T) {
+        instances[klass] = instance
     }
 
-    fun <T: Any> bean(instance: T) {
-
+    fun <T : Any> bean(instance: T) {
+        bean(instance::class.java, instance)
     }
 }
 
 fun sprink(init: Sprink.() -> Unit): Sprink {
     val sprink = Sprink()
+    sprink.init()
     return sprink
 }
