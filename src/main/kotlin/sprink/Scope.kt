@@ -1,6 +1,7 @@
 package sprink
 
 import sprink.provider.AnyProvider
+import sprink.provider.Provider
 import sprink.provider.Singleton
 
 class Scope {
@@ -21,11 +22,12 @@ class Scope {
         bean(instance.javaClass, instance)
     }
 
-    fun <T : Any, U : T> bean(klass: Class<in T>, instance: U, init: Aspect<U>.() -> Unit): Aspect<U> {
+    fun <T : Any, U : T> bean(klass: Class<in T>, instance: U, init: AnyProvider<U>.() -> Unit): AnyProvider<U>? {
         bean(klass, instance)
-        val aspect = Aspect(instance)
-        aspect.init()
-        return aspect
+        val provider = providers[klass] as AnyProvider<U>
+        provider.createAspectWithInstance(instance)
+        provider.init()
+        return provider
     }
 
     fun <T : Any> addProvider(klass: Class<in T>, provider: AnyProvider<T>) {

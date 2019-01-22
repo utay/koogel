@@ -57,7 +57,7 @@ class BasicSprinkTest {
             // Test call.
             val testService: TestService = instanceOf(TestService::class.java)
             for (i in 0..4) {
-                testService.ping()
+                testService.pong()
             }
             Thread.sleep(5000)
         }

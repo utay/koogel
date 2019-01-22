@@ -29,7 +29,6 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
         return res
     }
 
-
     fun before(method: Method?, consumer: () -> Unit) {
         method ?: return
         if (beforeConsumers[method] == null)
