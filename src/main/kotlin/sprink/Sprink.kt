@@ -1,26 +1,32 @@
 package sprink
 
+import java.util.*
+
 class Sprink {
 
-    private val providers: HashMap<Class<Any>, Provider> = hashMapOf()
-    private val instances: HashMap<Class<out Any>, Any> = hashMapOf()
+    private val scopes: Stack<Scope> = Stack()
 
-    fun <T : Any> instanceOf(klass: Class<T>): T? {
+    init {
+        scopes.add(Scope())
+    }
 
-        klass.constructors.forEach {
-            if (it.parameterCount == 0) {
-                return it.newInstance() as T?
-            }
-        }
-        return null
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> instanceOf(klass: Class<out T>): T {
+        return scopes.peek().instanceOf(klass)
     }
 
     fun <T : Any> bean(klass: Class<out T>, instance: T) {
-        instances[klass] = instance
+        scopes.peek().bean(klass, instance)
     }
 
     fun <T : Any> bean(instance: T) {
         bean(instance::class.java, instance)
+    }
+
+    fun scope(init: Scope.() -> Unit): Scope {
+        val scope = Scope()
+        scope.init()
+        return scope
     }
 }
 

@@ -10,7 +10,7 @@ class BasicSprinkTest {
         val sprink = sprink {
 
             // Add a provider to the scope, of type prototype, that binds on Nested.class.
-            //provider(Nested::class.java, Prototype(Supplier { Nested(instanceOf(TestService::class.java)) }))
+            provider(Nested::class.java, Prototype(Supplier { Nested(instanceOf(TestService::class.java)) }))
 
             // Shortcut for singleton addition.
             bean(TestService::class.java, TestServiceImpl())
