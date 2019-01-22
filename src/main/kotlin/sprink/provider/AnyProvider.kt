@@ -1,7 +1,7 @@
 package sprink.provider
 
-import sprink.Aspect
-import sprink.AspectContext
+import sprink.aspect.Aspect
+import sprink.aspect.AspectContext
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 

@@ -1,4 +1,4 @@
-package sprink
+package sprink.aspect
 
 import java.lang.reflect.Method
 
