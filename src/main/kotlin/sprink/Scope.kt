@@ -1,2 +1,6 @@
 package sprink
 
+class Scope {
+
+}
+

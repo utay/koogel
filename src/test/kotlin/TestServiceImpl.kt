@@ -1,0 +1,2 @@
+class TestServiceImpl: TestService {
+}

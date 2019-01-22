@@ -1,0 +1,3 @@
+class Nested(testService: TestService?) {
+
+}
