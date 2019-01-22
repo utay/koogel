@@ -30,7 +30,7 @@ class BasicSprinkTest {
                     before(TestService::pong.javaMethod) { println("before >> ") }
 
                     // Define AoP behaviour around calls to the pong method.
-                    /*around(TestService::pong.javaMethod) { ctx ->
+                    around(TestService::pong.javaMethod) { ctx ->
                         val before = System.nanoTime()
                         val res: Any? = ctx.proceed()
                         println("Method ${ctx.method.name} executed in ${(System.nanoTime() - before) / 1000000.0}ms")
@@ -42,7 +42,7 @@ class BasicSprinkTest {
                         val res: Any? = ctx.proceed()
                         println("result is: $res")
                         res
-                    }*/
+                    }
 
                     // Adds behaviour after the calls to pong.
                     after(TestService::pong.javaMethod) { println("<< after !") }

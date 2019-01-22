@@ -1,6 +1,7 @@
 package sprink.provider
 
 import sprink.Aspect
+import sprink.AspectContext
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
@@ -25,8 +26,8 @@ abstract class AnyProvider<T> : Provider<T> {
         aspect?.before(method, consumer)
     }
 
-    fun around(method: Method?) {
-        aspect?.around(method)
+    fun around(method: Method?, lambda: (ctx: AspectContext<T>) -> Any?) {
+        aspect?.around(method, lambda)
     }
 
     fun after(method: Method?, consumer: () -> Unit) {

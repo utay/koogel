@@ -7,7 +7,7 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
 
     private val beforeConsumers = hashMapOf<Method, ArrayList<() -> Unit>>()
     private val afterConsumers = hashMapOf<Method, ArrayList<() -> Unit>>()
-    private val aroundConsumers = hashMapOf<Method, ArrayList<() -> Unit>>()
+    private val aroundConsumers = hashMapOf<Method, ArrayList<(ctx: AspectContext<T>) -> Any?>>()
 
     override fun invoke(proxy: Any?, method: Method?, args: Array<out Any>?): Any? {
         if (beforeConsumers.containsKey(method)) {
@@ -15,10 +15,16 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
                 it.invoke()
             }
         }
-        val res: Any? = if (args == null) {
-            method?.invoke(instance)
+
+        val res: Any? = if (aroundConsumers.containsKey(method)) {
+            val context = AspectContext(instance, method!!, args, aroundConsumers[method]!!)
+            context.invoke()
         } else {
-            method?.invoke(instance, args)
+            if (args == null) {
+                method?.invoke(instance)
+            } else {
+                method?.invoke(instance, args)
+            }
         }
 
         if (afterConsumers.containsKey(method)) {
@@ -26,6 +32,7 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
                 it.invoke()
             }
         }
+
         return res
     }
 
@@ -36,8 +43,11 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
         beforeConsumers[method]?.add(consumer)
     }
 
-    fun around(method: Method?) {
-
+    fun around(method: Method?, lambda: (ctx: AspectContext<T>) -> Any?) {
+        method ?: return
+        if (aroundConsumers[method] == null)
+            aroundConsumers[method] = arrayListOf()
+        aroundConsumers[method]?.add(lambda)
     }
 
     fun after(method: Method?, consumer: () -> Unit) {
