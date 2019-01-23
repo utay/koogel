@@ -19,6 +19,7 @@ fun main(args: Array<String>) {
         "indexer" -> runIndexer(scope)
         "store" -> runStore(scope)
         "server" -> runServer()
+        "bus" -> runBus()
     }
 }
 
@@ -40,5 +41,9 @@ fun runIndexer(scope: Scope) {
 }
 
 fun runCrawler(s: Scope) {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+}
+
+fun runBus() {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }

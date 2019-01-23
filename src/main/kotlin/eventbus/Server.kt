@@ -13,7 +13,7 @@ class Server {
 
     private val http: Http = ignite()
     private val channels: HashMap<String, ArrayList<String>> = HashMap()
-    private val LOGGER: Logger = LoggerFactory.getLogger(Indexer::class.java)
+    private val LOGGER: Logger = LoggerFactory.getLogger(Server::class.java)
 
     private fun parseBody(body: String, handler: (message: EventMessage) -> Unit) {
         val eventMessage = Gson().fromJson(body, EventMessage::class.java)

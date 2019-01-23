@@ -1,35 +1,38 @@
 package application
 
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.Executors
+import com.google.gson.Gson
+import eventbus.Client
+import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 
-abstract class App protected constructor(/*protected val eventBus: EventBusClient*/) {
+abstract class App protected constructor(protected val eventBus: Client) {
+
+    companion object {
+        private val LOGGER: Logger = LoggerFactory.getLogger(App::class.java)
+    }
 
     protected val uid: String = UUID.randomUUID().toString()
 
     abstract fun run()
 
     protected fun sendMessage(channel: String, obj: Any) {
-       /* try {
-            val em = EventMessage(channel, obj)
+        try {
+            val em = EventMessage(channel, obj.javaClass.typeName, Gson().toJson(obj))
             eventBus.publish(em)
-        } catch (e: JsonProcessingException) {
-            LOGGER.error("Impossible to send message: {}", e.getMessage())
-        }*/
+        } catch (e: Exception) {
+            LOGGER.error("Impossible to send message: {}", e.message)
+        }
     }
 
     protected fun retryIn(seconds: Int, consumer: Runnable) {
-        LOGGER.info("Retry fetching url in {}seconds", seconds)
+        LOGGER.info("Retry fetching url in {} seconds", seconds)
         val executor = Executors.newSingleThreadScheduledExecutor()
         executor.schedule(consumer, seconds.toLong(), TimeUnit.SECONDS)
         executor.shutdownNow()
-    }
-
-    companion object {
-        private val LOGGER: Logger = LoggerFactory.getLogger(App::class.java)
     }
 }
