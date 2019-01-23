@@ -7,6 +7,9 @@ import eventbus.Client
 import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import server.crawler.CrawlerCommand.Companion.CRAWL
+import server.crawler.CrawlerCommand.Companion.CRAWL_ENDED
+import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.HashSet
 
@@ -14,6 +17,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(CrawlerManager::class.java)
+        const val CRAWLER_MANAGER_CHANNEL = "crawler_manager"
     }
 
     private val crawlers = hashMapOf<String, Boolean>()
@@ -25,17 +29,17 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
         eventBus.addHandler("/event") {
             Utils.parseBody(request.body()) {
                 when (it.type) {
-                    "REGISTER_CRAWLER" -> registerCrawler(
+                    REGISTER_CRAWLER -> registerCrawler(
                         Gson().fromJson(
                             it.obj,
                             RegisterCrawlerSerializer::class.java
                         )
                     )
-                    "CRAWL_ENDED" -> addLinksToCrawl(Gson().fromJson(it.obj, CrawlEndedSerializer::class.java))
+                    CRAWL_ENDED -> addLinksToCrawl(Gson().fromJson(it.obj, CrawlEndedSerializer::class.java))
                 }
             }
         }
-        eventBus.subscribe("crawler_manager", "http://${eventBus.host}:${eventBus.port}/event")
+        eventBus.subscribe(CRAWLER_MANAGER_CHANNEL, "http://${eventBus.host}:${eventBus.port}/event")
     }
 
     private fun registerCrawler(registerCrawlerSerializer: RegisterCrawlerSerializer) {
@@ -56,8 +60,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
             val crawler = crawlers.filter { it.value }.keys.firstOrNull() ?: continue
             val url = urlQueue.poll() ?: continue
             crawlers[crawler] = false
-            val message = Gson().toJson(CrawlSerializer(url))
-            eventBus.publish(EventMessage("crawl_$crawler", "CRAWL", message))
+            sendMessage("crawl_$crawler", CRAWL, CrawlSerializer(url))
         }
     }
 }

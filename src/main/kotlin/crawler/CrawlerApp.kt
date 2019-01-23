@@ -4,11 +4,14 @@ import Utils
 import application.App
 import com.google.gson.Gson
 import eventbus.Client
-import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.crawler.CrawlEndedSerializer
 import server.crawler.CrawlSerializer
+import server.crawler.CrawlerCommand.Companion.CRAWL
+import server.crawler.CrawlerCommand.Companion.CRAWL_ENDED
+import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
+import server.crawler.CrawlerManager.Companion.CRAWLER_MANAGER_CHANNEL
 import server.crawler.RegisterCrawlerSerializer
 
 class CrawlerApp(eventBus: Client) : App(eventBus) {
@@ -23,13 +26,12 @@ class CrawlerApp(eventBus: Client) : App(eventBus) {
         eventBus.addHandler("/event") {
             Utils.parseBody(request.body()) {
                 when (it.type) {
-                    "CRAWL" -> startCrawling(Gson().fromJson(it.obj, CrawlSerializer::class.java))
+                    CRAWL -> startCrawling(Gson().fromJson(it.obj, CrawlSerializer::class.java))
                 }
             }
         }
         eventBus.subscribe("crawl_$uid", "http://${eventBus.host}:${eventBus.port}/event")
-        val message = RegisterCrawlerSerializer(uid)
-        eventBus.publish(EventMessage("crawler_manager", "REGISTER_CRAWLER", Gson().toJson(message)))
+        sendMessage(CRAWLER_MANAGER_CHANNEL, REGISTER_CRAWLER, RegisterCrawlerSerializer(uid))
     }
 
     override fun run() {
@@ -40,12 +42,10 @@ class CrawlerApp(eventBus: Client) : App(eventBus) {
         val res = crawler.crawl(crawlSerializer.url)
         if (res == null) {
             LOGGER.error("Crawling failed for url '${crawlSerializer.url}'")
-            val message = Gson().toJson(CrawlEndedSerializer(ArrayList(), crawlSerializer.url, uid))
-            eventBus.publish(EventMessage("crawler_manager", "CRAWL_ENDED", message))
+            sendMessage(CRAWLER_MANAGER_CHANNEL, CRAWL_ENDED, CrawlEndedSerializer(ArrayList(), crawlSerializer.url, uid))
             return
         }
         //TODO: call indexerManager
-        val message = Gson().toJson(CrawlEndedSerializer(res.second, crawlSerializer.url, uid))
-        eventBus.publish(EventMessage("crawler_manager", "CRAWL_ENDED", message))
+        sendMessage(CRAWLER_MANAGER_CHANNEL, CRAWL_ENDED, CrawlEndedSerializer(res.second, crawlSerializer.url, uid))
     }
 }
