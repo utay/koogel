@@ -18,9 +18,9 @@ abstract class App protected constructor(protected val eventBus: Client) {
 
     protected val uid: String = UUID.randomUUID().toString()
 
-    protected fun sendMessage(channel: String, obj: Any) {
+    protected fun sendMessage(channel: String, type: String, obj: Any) {
         try {
-            val em = EventMessage(channel, obj.javaClass.typeName, Gson().toJson(obj))
+            val em = EventMessage(channel, type, Gson().toJson(obj))
             eventBus.publish(em)
         } catch (e: Exception) {
             LOGGER.error("Impossible to send message: {}", e.message)
