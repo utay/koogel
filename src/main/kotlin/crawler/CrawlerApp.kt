@@ -9,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.crawler.CrawlEndedSerializer
 import server.crawler.CrawlSerializer
+import server.crawler.RegisterCrawlerSerializer
 
 class CrawlerApp(eventBus: Client) : App(eventBus) {
 
@@ -27,6 +28,8 @@ class CrawlerApp(eventBus: Client) : App(eventBus) {
             }
         }
         eventBus.subscribe("crawl_$uid", "http://${eventBus.host}:${eventBus.port}/event")
+        val message = RegisterCrawlerSerializer(uid)
+        eventBus.publish(EventMessage("crawler_manager", "REGISTER_CRAWLER", Gson().toJson(message)))
     }
 
     override fun run() {
@@ -37,10 +40,12 @@ class CrawlerApp(eventBus: Client) : App(eventBus) {
         val res = crawler.crawl(crawlSerializer.url)
         if (res == null) {
             LOGGER.error("Crawling failed for url '${crawlSerializer.url}'")
+            val message = Gson().toJson(CrawlEndedSerializer(ArrayList(), crawlSerializer.url, uid))
+            eventBus.publish(EventMessage("crawler_manager", "CRAWL_ENDED", message))
             return
         }
         //TODO: call indexerManager
-        val message = Gson().toJson(CrawlEndedSerializer(res.second, crawlSerializer.url))
+        val message = Gson().toJson(CrawlEndedSerializer(res.second, crawlSerializer.url, uid))
         eventBus.publish(EventMessage("crawler_manager", "CRAWL_ENDED", message))
     }
 }

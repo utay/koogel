@@ -21,6 +21,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
     private val urlSeen = HashSet<String>()
 
     init {
+        urlQueue.add("http://www.wikipedia.com")
         eventBus.addHandler("/event") {
             Utils.parseBody(request.body()) {
                 when (it.type) {
@@ -39,11 +40,21 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
 
     private fun registerCrawler(registerCrawlerSerializer: RegisterCrawlerSerializer) {
         crawlers[registerCrawlerSerializer.crawlerId] = true
+        LOGGER.info("Register crawler '${registerCrawlerSerializer.crawlerId}'")
     }
 
     private fun addLinksToCrawl(crawlEndedSerializer: CrawlEndedSerializer) {
-        urlQueue.addAll(crawlEndedSerializer.urls)
-        urlSeen.add(crawlEndedSerializer.url)
+        synchronized(urlSeen) {
+            urlSeen.add(crawlEndedSerializer.url)
+        }
+        synchronized(urlQueue) {
+            val list = crawlEndedSerializer.urls.filter { !urlSeen.contains(it) }.distinct()
+            LOGGER.info("Received links from '${crawlEndedSerializer.id}', numbers: ${list.size}")
+            urlQueue.addAll(list)
+        }
+        synchronized(crawlers) {
+            crawlers[crawlEndedSerializer.id] = true
+        }
     }
 
     override fun run() {

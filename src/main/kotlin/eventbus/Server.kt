@@ -53,12 +53,13 @@ class Server {
             parseBody(request.body()) {
                 for (url in channels[it.channel]!!) {
                     try {
-                        val response = Unirest.post(url).body(it).asJson()
+                        val message = Gson().toJson(it)
+                        val response = Unirest.post(url).body(message).asString()
                         if (response.status != 200) {
                             LOGGER.error("Got ${response.status}, expected 200")
                         }
                     } catch (e: Exception) {
-                        LOGGER.error(e.message)
+                        LOGGER.error("Event received: ${e.message}")
                     }
                 }
             }

@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
     val scope = createScope(args[1], args[2].toInt())
 
     when (module) {
-        "crawler" -> runCrawler(scope)
+        "crawler" -> runCrawler(scope, args[2].toInt())
         "indexer" -> runIndexer(scope)
         "store" -> runStore(scope)
         "crawler_manager" -> runCrawlerManager()
@@ -50,8 +50,8 @@ fun runIndexer(scope: Scope) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }
 
-fun runCrawler(s: Scope) {
-    val crawlerApp = CrawlerApp(Client("localhost", 3200, "http://localhost:5000"))
+fun runCrawler(s: Scope, port: Int) {
+    val crawlerApp = CrawlerApp(Client("localhost", port, "http://localhost:5000"))
     crawlerApp.run()
 }
 

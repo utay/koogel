@@ -28,7 +28,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
             Unirest.post("$eventBusUrl/event").body(serializedMessage).asString()
             LOGGER.info("Published to channel ${eventMessage.channel}")
         } catch (e: Exception) {
-            LOGGER.error(e.message)
+            LOGGER.error("Publish error: ${e.message}")
         }
     }
 
@@ -40,7 +40,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
                 .body(Gson().toJson(eventMessage)).asString()
             LOGGER.info("Subscribed to channel ${eventMessage.channel}")
         } catch (e: Exception) {
-            LOGGER.error(e.message)
+            LOGGER.error("Subscribe error: ${e.message}")
         }
     }
 
@@ -51,7 +51,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
             Unirest.post("$eventBusUrl/unsubscribe").body(Gson().toJson(eventMessage)).asString()
             LOGGER.info("Unsubscribed to channel ${eventMessage.channel}")
         } catch (e: Exception) {
-            LOGGER.error(e.message)
+            LOGGER.error("Unsubscribe error: ${e.message}")
         }
     }
 
