@@ -5,9 +5,9 @@ import application.App
 import com.google.gson.Gson
 import eventbus.Client
 import eventbus.EventMessage
-import org.eclipse.jetty.util.BlockingArrayQueue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.HashSet
 
 class CrawlerManager(eventBus: Client) : App(eventBus) {
@@ -17,7 +17,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
     }
 
     private val crawlers = hashMapOf<String, Boolean>()
-    private val urlQueue = BlockingArrayQueue<String>()
+    private val urlQueue = LinkedBlockingQueue<String>()
     private val urlSeen = HashSet<String>()
 
     init {
