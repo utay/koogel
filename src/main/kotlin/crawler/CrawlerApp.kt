@@ -13,6 +13,9 @@ import server.crawler.CrawlerCommand.Companion.CRAWL_ENDED
 import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
 import server.crawler.CrawlerManager.Companion.CRAWLER_MANAGER_CHANNEL
 import server.crawler.RegisterCrawlerSerializer
+import server.indexer.AddPageToIndexSerializer
+import server.indexer.IndexerCommand.Companion.ADD_PAGE_TO_INDEX
+import server.indexer.IndexerManager.Companion.INDEXER_MANAGER_CHANNEL
 
 class CrawlerApp(eventBus: Client) : App(eventBus) {
 
@@ -45,7 +48,7 @@ class CrawlerApp(eventBus: Client) : App(eventBus) {
             sendMessage(CRAWLER_MANAGER_CHANNEL, CRAWL_ENDED, CrawlEndedSerializer(ArrayList(), crawlSerializer.url, uid))
             return
         }
-        //TODO: call indexerManager
+        sendMessage(INDEXER_MANAGER_CHANNEL, ADD_PAGE_TO_INDEX, AddPageToIndexSerializer(res.first))
         sendMessage(CRAWLER_MANAGER_CHANNEL, CRAWL_ENDED, CrawlEndedSerializer(res.second, crawlSerializer.url, uid))
     }
 }

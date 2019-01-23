@@ -18,6 +18,7 @@ class IndexerManager(eventBusClient: Client) : App(eventBusClient) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(IndexerManager::class.java)
+        const val INDEXER_MANAGER_CHANNEL = "indexer_manager"
     }
 
     private val pagesToIndex = LinkedBlockingDeque<Page>()
@@ -34,7 +35,7 @@ class IndexerManager(eventBusClient: Client) : App(eventBusClient) {
             }
         }
         val callBackUrl = "http://${eventBusClient.host}:${eventBusClient.port}/event"
-        eventBusClient.subscribe("indexer_manager", callBackUrl)
+        eventBusClient.subscribe(INDEXER_MANAGER_CHANNEL, callBackUrl)
     }
 
     override fun run() {
@@ -58,7 +59,7 @@ class IndexerManager(eventBusClient: Client) : App(eventBusClient) {
     }
 
     private fun endIndexing(indexer: EndIndexSerializer) {
-        indexers[indexer.id] = false
+        indexers[indexer.id] = true
         LOGGER.info("Indexing finished for '${indexer.id}'")
     }
 }

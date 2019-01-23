@@ -7,10 +7,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.indexer.EndIndexSerializer
 import server.indexer.IndexPageSerializer
-import server.indexer.IndexerCommand
 import server.indexer.IndexerCommand.Companion.END_INDEXING
 import server.indexer.IndexerCommand.Companion.INDEX_PAGE
 import server.indexer.IndexerCommand.Companion.REGISTER_INDEXER
+import server.indexer.IndexerManager.Companion.INDEXER_MANAGER_CHANNEL
 import server.indexer.RegisterIndexerSerializer
 
 class IndexerApp(eventBusClient: Client): App(eventBusClient) {
@@ -31,7 +31,7 @@ class IndexerApp(eventBusClient: Client): App(eventBusClient) {
         }
         val callBackUrl = "http://${eventBusClient.host}:${eventBusClient.port}/event"
         eventBusClient.subscribe("indexer_$uid", callBackUrl)
-        sendMessage("indexer_manager", REGISTER_INDEXER, RegisterIndexerSerializer(uid))
+        sendMessage(INDEXER_MANAGER_CHANNEL, REGISTER_INDEXER, RegisterIndexerSerializer(uid))
     }
 
     override fun run() {
@@ -42,6 +42,6 @@ class IndexerApp(eventBusClient: Client): App(eventBusClient) {
         LOGGER.info("Index page with url '${indexPageSerializer.page.URL}'")
         val document = indexer.getDocument(indexPageSerializer.page)
         //TODO: Send document to index
-        sendMessage("indexer_manager", END_INDEXING, EndIndexSerializer(uid))
+        sendMessage(INDEXER_MANAGER_CHANNEL, END_INDEXING, EndIndexSerializer(uid))
     }
 }
