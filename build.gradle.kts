@@ -10,6 +10,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 application {
@@ -23,8 +24,8 @@ dependencies {
     implementation("org.slf4j:slf4j-log4j12:1.7.25")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.3.10")
     implementation("com.sparkjava:spark-kotlin:1.0.0-alpha")
-    implementation("com.github.kittinunf.fuel:fuel:1.15.1")
-    implementation("com.beust:klaxon:5.0.1")
+    implementation("com.google.code.gson:gson:2.8.5")
+    implementation("com.mashape.unirest:unirest-java:1.4.9")
 
     testCompile("junit:junit:4.11")
 }
