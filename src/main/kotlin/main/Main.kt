@@ -3,10 +3,12 @@ package main
 import crawler.CrawlerApp
 import eventbus.Client
 import eventbus.Server
+import indexer.IndexerApp
 import org.apache.log4j.BasicConfigurator
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import server.crawler.CrawlerManager
+import server.indexer.IndexerManager
 import sprink.Scope
 import java.lang.System.exit
 
@@ -15,18 +17,21 @@ fun main(args: Array<String>) {
     Logger.getLogger("org").level = Level.ERROR
     Logger.getLogger("akka").level = Level.ERROR
     if (args.size != 3) {
-        println("usage: ./bin [crawler | indexer | store | crawler_manager | bus] SERVER_HOST PORT")
+        println("usage: ./bin [crawler | indexer | store | crawler_manager | crawler_manager | bus] SERVER_HOST PORT")
         exit(1)
     }
 
     val module = args[0]
-    val scope = createScope(args[1], args[2].toInt())
+    val host = args[1]
+    val port = args[2].toInt()
+    val scope = createScope(host, port)
 
     when (module) {
-        "crawler" -> runCrawler(scope, args[2].toInt())
-        "indexer" -> runIndexer(scope)
+        "crawler" -> runCrawler(scope, port)
+        "indexer" -> runIndexer(scope, port)
         "store" -> runStore(scope)
-        "crawler_manager" -> runCrawlerManager()
+        "crawler_manager" -> runCrawlerManager(port)
+        "indexer_manager" -> runIndexerManager(port)
         "bus" -> runBus()
     }
 }
@@ -36,9 +41,15 @@ fun createScope(s: String, port: Int): Scope {
     return Scope()
 }
 
-fun runCrawlerManager() {
+fun runIndexerManager(port: Int) {
     //TODO: Add sprink
-    val crawlerManager = CrawlerManager(Client("localhost", 3000, "http://localhost:5000"))
+    val indexerManager = IndexerManager(Client("localhost", port, "http://localhost:5000"))
+    indexerManager.run()
+}
+
+fun runCrawlerManager(port: Int) {
+    //TODO: Add sprink
+    val crawlerManager = CrawlerManager(Client("localhost", port, "http://localhost:5000"))
     crawlerManager.run()
 }
 
@@ -46,8 +57,9 @@ fun runStore(scope: Scope) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }
 
-fun runIndexer(scope: Scope) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+fun runIndexer(scope: Scope, port: Int) {
+    val indexerApp = IndexerApp(Client("localhost", port, "http://localhost:5000"))
+    indexerApp.run()
 }
 
 fun runCrawler(s: Scope, port: Int) {

@@ -10,13 +10,10 @@ class Indexer {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(Indexer::class.java)
-
-        fun index(page: Page) {
-            LOGGER.info("Indexing {}", page.URL)
-            index.addDocument(getDocument(page))
-        }
+    }
 
         fun getDocument(page: Page): Document {
+            LOGGER.info("Indexing {}", page.URL)
             val doc = Document(page.URL, HashMap())
 
             for (word in page.content) {
@@ -34,13 +31,9 @@ class Indexer {
                         pageIndices,
                         page.rawIndices[word]!!
                     )
-
-                    if (!page.URL.isNullOrEmpty())
-                        index.addTermWithDocument(word, doc)
                 }
             }
 
             return doc
         }
-    }
 }

@@ -51,7 +51,7 @@ class Search {
     fun searchQuery(query: String): List<Document> {
         LOGGER.info("Initialize search for query '{}'", query)
         val page = Lexer.lex(query, "")
-        val docQuery = Indexer.getDocument(page)
+        val docQuery = Indexer().getDocument(page)
         val documentVectors = HashMap<Document, Vector<Double>>()
         val queryValue = Vector<Double>()
         val docs = HashSet<Document>()
