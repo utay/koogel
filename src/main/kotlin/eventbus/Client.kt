@@ -1,0 +1,5 @@
+package eventbus
+
+class Client {
+
+}
