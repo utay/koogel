@@ -15,7 +15,9 @@ import kotlin.collections.HashMap
 
 class Search {
 
-    private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
+    companion object {
+        private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
+    }
 
     private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0

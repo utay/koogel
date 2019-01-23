@@ -2,8 +2,6 @@ package eventbus
 
 import com.google.gson.Gson
 import com.mashape.unirest.http.Unirest
-import indexer.Indexer
-import org.apache.log4j.BasicConfigurator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import spark.kotlin.Http
@@ -15,7 +13,7 @@ class Server {
         private val LOGGER: Logger = LoggerFactory.getLogger(Server::class.java)
     }
 
-    private val http: Http = ignite()
+    private val http: Http = ignite().port(5000)
     private val channels: HashMap<String, ArrayList<String>> = HashMap()
 
     private fun parseBody(body: String, handler: (message: EventMessage) -> Unit) {

@@ -4,12 +4,16 @@ import crawler.CrawlerApp
 import eventbus.Client
 import eventbus.Server
 import org.apache.log4j.BasicConfigurator
+import org.apache.log4j.Level
+import org.apache.log4j.Logger
 import server.crawler.CrawlerManager
 import sprink.Scope
 import java.lang.System.exit
 
 fun main(args: Array<String>) {
     BasicConfigurator.configure()
+    Logger.getLogger("org").level = Level.ERROR
+    Logger.getLogger("akka").level = Level.ERROR
     if (args.size != 3) {
         println("usage: ./bin [crawler | indexer | store | crawler_manager | bus] SERVER_HOST PORT")
         exit(1)
