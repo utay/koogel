@@ -5,9 +5,9 @@ import application.App
 import com.google.gson.Gson
 import eventbus.Client
 import eventbus.EventMessage
+import org.eclipse.jetty.util.BlockingArrayQueue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 import kotlin.collections.HashSet
 
 class CrawlerManager(eventBus: Client) : App(eventBus) {
@@ -17,7 +17,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
     }
 
     private val crawlers = hashMapOf<String, Boolean>()
-    private val urlQueue = PriorityQueue<String>()
+    private val urlQueue = BlockingArrayQueue<String>()
     private val urlSeen = HashSet<String>()
 
     init {
@@ -44,17 +44,11 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
     }
 
     private fun addLinksToCrawl(crawlEndedSerializer: CrawlEndedSerializer) {
-        synchronized(urlSeen) {
-            urlSeen.add(crawlEndedSerializer.url)
-        }
-        synchronized(urlQueue) {
-            val list = crawlEndedSerializer.urls.filter { !urlSeen.contains(it) }.distinct()
-            LOGGER.info("Received links from '${crawlEndedSerializer.id}', numbers: ${list.size}")
-            urlQueue.addAll(list)
-        }
-        synchronized(crawlers) {
-            crawlers[crawlEndedSerializer.id] = true
-        }
+        urlSeen.add(crawlEndedSerializer.url)
+        val list = crawlEndedSerializer.urls.filter { !urlSeen.contains(it) }.distinct()
+        LOGGER.info("Received urls from '${crawlEndedSerializer.id}', numbers: ${list.size}")
+        urlQueue.addAll(list)
+        crawlers[crawlEndedSerializer.id] = true
     }
 
     override fun run() {

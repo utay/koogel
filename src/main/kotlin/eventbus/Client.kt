@@ -25,7 +25,8 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
     fun publish(eventMessage: EventMessage) {
         val serializedMessage = Gson().toJson(eventMessage)
         try {
-            Unirest.post("$eventBusUrl/event").body(serializedMessage).asString()
+            Unirest.post("$eventBusUrl/event").header("accept", "application/json")
+                .body(serializedMessage).asStringAsync()
             LOGGER.info("Published to channel ${eventMessage.channel}")
         } catch (e: Exception) {
             LOGGER.error("Publish error: ${e.message}")
@@ -37,7 +38,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
         val eventMessage = EventMessage(channel, "SUBSCRIBE", Gson().toJson(subscribeMessage))
         try {
             Unirest.post("$eventBusUrl/subscribe").header("accept", "application/json")
-                .body(Gson().toJson(eventMessage)).asString()
+                .body(Gson().toJson(eventMessage)).asStringAsync()
             LOGGER.info("Subscribed to channel ${eventMessage.channel}")
         } catch (e: Exception) {
             LOGGER.error("Subscribe error: ${e.message}")
@@ -48,7 +49,8 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
         val subscribeMessage = SubscribeMessage(callbackUrl)
         val eventMessage = EventMessage(channel, "UNSUBSCRIBE", Gson().toJson(subscribeMessage))
         try {
-            Unirest.post("$eventBusUrl/unsubscribe").body(Gson().toJson(eventMessage)).asString()
+            Unirest.post("$eventBusUrl/unsubscribe").header("accept", "application/json")
+                .body(Gson().toJson(eventMessage)).asStringAsync()
             LOGGER.info("Unsubscribed to channel ${eventMessage.channel}")
         } catch (e: Exception) {
             LOGGER.error("Unsubscribe error: ${e.message}")

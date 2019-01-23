@@ -50,7 +50,7 @@ class Crawler {
             val urls = crawlHrefs(content, url)
             Pair(page, urls)
         } catch (e: Exception) {
-            LOGGER.error("Error fetching url: $url", e)
+            LOGGER.error("Error fetching url: $url", e.message)
             null
         }
     }
