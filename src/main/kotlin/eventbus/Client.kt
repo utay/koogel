@@ -9,7 +9,7 @@ import spark.kotlin.Http
 import spark.kotlin.RouteHandler
 import spark.kotlin.ignite
 
-class Client(private val host: String, private val port: Int, private val eventBusUrl: String) {
+class Client(val host: String, val port: Int, private val eventBusUrl: String) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(Client::class.java)

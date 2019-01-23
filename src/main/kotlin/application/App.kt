@@ -18,8 +18,6 @@ abstract class App protected constructor(protected val eventBus: Client) {
 
     protected val uid: String = UUID.randomUUID().toString()
 
-    abstract fun run()
-
     protected fun sendMessage(channel: String, obj: Any) {
         try {
             val em = EventMessage(channel, obj.javaClass.typeName, Gson().toJson(obj))
@@ -28,6 +26,8 @@ abstract class App protected constructor(protected val eventBus: Client) {
             LOGGER.error("Impossible to send message: {}", e.message)
         }
     }
+
+    abstract fun run()
 
     protected fun retryIn(seconds: Int, consumer: Runnable) {
         LOGGER.info("Retry fetching url in {} seconds", seconds)

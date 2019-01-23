@@ -9,13 +9,15 @@ import org.slf4j.LoggerFactory
 
 class Crawler {
 
-    private val LOGGER: Logger = LoggerFactory.getLogger(Crawler::class.java)
-    private val crawledUrls = mutableSetOf<String>()
+    companion object {
+        private val LOGGER: Logger = LoggerFactory.getLogger(Crawler::class.java)
+    }
 
     fun getContent(url: String) = Jsoup.connect(url).get()
 
-    private fun crawlHrefs(document: Document, baseUrl: String) {
+    private fun crawlHrefs(document: Document, baseUrl: String): ArrayList<String> {
         val hrefs: Elements = document.select("a")
+        val urls = arrayListOf<String>()
         hrefs.forEach {
             var href = it.attr("href")
             href = href.replace(Regex("\\?.*"), "").removeSuffix("/")
@@ -34,22 +36,22 @@ class Crawler {
                     val domain = url.slice(0 until url.indexOf("/"))
                     href = "$prefix$domain$href"
                 }
-                if (!crawledUrls.contains(href)) {
-                    crawledUrls.add(href)
-                    crawl(href)
-                }
+                urls.add(href)
             }
         }
+        return urls
     }
 
-    private fun crawl(url: String) {
+    fun crawl(url: String): Pair<Page, ArrayList<String>>? {
         LOGGER.info("crawling $url")
-        try {
+        return try {
             val content = getContent(url)
             val page = Lexer.lex(content.text(), url)
-            crawlHrefs(content, url)
+            val urls = crawlHrefs(content, url)
+            Pair(page, urls)
         } catch (e: Exception) {
             LOGGER.error("Error fetching url: $url", e)
+            null
         }
     }
 

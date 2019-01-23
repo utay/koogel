@@ -1,13 +1,17 @@
 package main
 
+import crawler.CrawlerApp
+import eventbus.Client
+import eventbus.Server
 import org.apache.log4j.BasicConfigurator
+import server.crawler.CrawlerManager
 import sprink.Scope
 import java.lang.System.exit
 
 fun main(args: Array<String>) {
     BasicConfigurator.configure()
     if (args.size != 3) {
-        println("usage: ./bin [crawler | indexer | store | server] SERVER_HOST PORT")
+        println("usage: ./bin [crawler | indexer | store | crawler_manager | bus] SERVER_HOST PORT")
         exit(1)
     }
 
@@ -18,7 +22,7 @@ fun main(args: Array<String>) {
         "crawler" -> runCrawler(scope)
         "indexer" -> runIndexer(scope)
         "store" -> runStore(scope)
-        "server" -> runServer()
+        "crawler_manager" -> runCrawlerManager()
         "bus" -> runBus()
     }
 }
@@ -28,8 +32,10 @@ fun createScope(s: String, port: Int): Scope {
     return Scope()
 }
 
-fun runServer() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+fun runCrawlerManager() {
+    //TODO: Add sprink
+    val crawlerManager = CrawlerManager(Client("localhost", 3000, "http://localhost:5000"))
+    crawlerManager.run()
 }
 
 fun runStore(scope: Scope) {
@@ -41,9 +47,11 @@ fun runIndexer(scope: Scope) {
 }
 
 fun runCrawler(s: Scope) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val crawlerApp = CrawlerApp(Client("localhost", 3200, "http://localhost:5000"))
+    crawlerApp.run()
 }
 
 fun runBus() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val bus = Server()
+    bus.run()
 }
