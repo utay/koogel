@@ -61,6 +61,10 @@ class Search {
             }
         }
 
-        return similarity(queryValue, documentVectors)
+        documentVectors.keys.forEach {
+            documentVectors[it] = Utils.normalizeVector(documentVectors[it]!!)
+        }
+
+        return similarity(Utils.normalizeVector(queryValue), documentVectors)
     }
 }
