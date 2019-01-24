@@ -90,9 +90,11 @@ export default {
         for (const index of result.metadata[term].rawIndices) {
           const highlight = [index, term.length];
           if (firstHighlightIndex === -1) firstHighlightIndex = index;
-          res = res.splice(highlight[0] - 1 + i, 0, "<b>");
+          const start = Math.max(highlight[0] - 1 + i, 0);
+          res = res.splice(start, 0, "<b>");
           i += 3;
-          res = res.splice(highlight[0] - 1 + highlight[1] + i, 0, "</b>");
+          const end = Math.max(highlight[0] - 1 + i, 0) + 1 + highlight[1];
+          res = res.splice(end, 0, "</b>");
           i += 4;
         }
       }
@@ -123,12 +125,11 @@ export default {
       //       {
       //         URL: "https://insideapp.io",
       //         metadata: {
-      //           insideapp: {
-      //             rawIndices: [12]
+      //           facebook: {
+      //             rawIndices: [4250]
       //           }
       //         },
-      //         rawContent:
-      //           "jean. Toto insideapp cacainsideapp insideapp insideapp insideainsideapp insideapp insideapp insideapp insideapp insidinsideapp insideapp insideapp insideapp insidinsideapp insideapp insideapp insideapp insidinsideapp insideapp insidinsiinsideapp insideapp ccdeinsideapp cainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccccppinsideapp c insideapp ccinsideapp cccc"
+      //         rawContent: ""
       //       }
       //     ],
       //     totalResults: 1
