@@ -26,6 +26,7 @@ class RetroIndexApp(val eventBusClient: EventBusClient): App(eventBusClient) {
                 }
             }
         }
+        //TODO: Add handler for call from search
         eventBusClient.subscribe(RETRO_INDEX_CHANNEL, eventBusClient.getCallBackURL("/event"))
     }
 

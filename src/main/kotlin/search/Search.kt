@@ -2,16 +2,14 @@ package search
 
 import crawler.Lexer
 import indexer.Document
-import indexer.Index
 import indexer.Indexer
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import kotlin.math.abs
-import kotlin.math.log10
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.math.abs
+import kotlin.math.log10
 
 class Search {
 
@@ -19,7 +17,7 @@ class Search {
         private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
     }
 
-    private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>, docsSize: Int): Double {
+    private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>, docsSize: Long): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
         val numberDocument = docs.filter { d -> d.metadata.containsKey(token) }.size
         if (numberDocument == 0)
@@ -39,27 +37,19 @@ class Search {
     }
 
     private fun similarity(query: Vector<Double>, docs: HashMap<Document, Vector<Double>>): List<Document> {
-        var result = ArrayList<Pair<Document, Double>>()
-        LOGGER.debug("TF-IDF for query - {}", query.toString())
+        val result = ArrayList<Pair<Document, Double>>()
         docs.forEach { document, vector ->
             result.add(Pair(document, cosSimularity(query, vector)))
         }
-        LOGGER.debug("CosSimilarity for documents - {}", result.map { p -> Pair(p.first.URL, p.second) })
         return result.sortedByDescending { p -> p.second }.map { r -> r.first }
     }
 
-    fun searchQuery(query: String): List<Document> {
+    fun searchQuery(query: String, docs: HashSet<Document>, numbersDocuments: Long): List<Document> {
         LOGGER.info("Initialize search for query '{}'", query)
         val page = Lexer.lex(query, "")
         val docQuery = Indexer().getDocument(page)
         val documentVectors = HashMap<Document, Vector<Double>>()
         val queryValue = Vector<Double>()
-        val docs = HashSet<Document>()
-
-        for (token in page.content) {
-            val documents = Index().retroIndex[token] ?: continue
-            docs.addAll(documents)
-        }
 
         if (docs.isEmpty()) {
             LOGGER.info("No results for query '{}'", query)
@@ -69,14 +59,12 @@ class Search {
         docs.forEach { doc -> documentVectors[doc] = Vector() }
 
         for (token in page.content) {
-            queryValue.add(tfIdf(token, docQuery, docs, Index().documents.size))
+            queryValue.add(tfIdf(token, docQuery, docs, numbersDocuments))
             docs.forEach { doc ->
-                documentVectors[doc]?.add(tfIdf(token, doc, docs, Index().documents.size))
+                documentVectors[doc]?.add(tfIdf(token, doc, docs, numbersDocuments))
             }
         }
 
-        val resDocs = similarity(queryValue, documentVectors)
-        LOGGER.debug("Results for query: '{}' -> {}", query, resDocs.map { d -> d.URL }.toString())
-        return resDocs
+        return similarity(queryValue, documentVectors)
     }
 }
