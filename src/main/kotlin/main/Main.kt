@@ -5,6 +5,7 @@ import eventbus.Client
 import eventbus.Server
 import application.IndexerApp
 import application.RetroIndexApp
+import application.SearchApp
 import eventbus.EventBusClient
 import org.apache.log4j.BasicConfigurator
 import org.apache.log4j.Level
@@ -22,7 +23,8 @@ fun main(args: Array<String>) {
     Logger.getLogger("org").level = Level.ERROR
     Logger.getLogger("akka").level = Level.ERROR
     if (args.size != 3) {
-        println("usage: ./bin [crawler | indexer | store | crawler_manager | crawler_manager | bus | retro_index] SERVER_HOST PORT")
+        println("usage: ./bin [crawler | indexer | store | crawler_manager " +
+                "| crawler_manager | bus | retro_index | search] SERVER_HOST PORT")
         exit(1)
     }
 
@@ -41,6 +43,7 @@ fun main(args: Array<String>) {
         "indexer_manager" -> runIndexerManager(sprink)
         "bus" -> runBus()
         "retro_index" -> runRetroIndex(sprink)
+        "search" -> runSearch(port)
     }
 }
 
@@ -85,4 +88,8 @@ fun runCrawler(sprink: Sprink) {
 fun runBus() {
     val bus = Server()
     bus.run()
+}
+
+fun runSearch(port: Int) {
+    val SearchApp = SearchApp(port, "")
 }
