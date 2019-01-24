@@ -1,17 +1,21 @@
 package main
 
-import crawler.CrawlerApp
+import application.CrawlerApp
 import eventbus.Client
 import eventbus.Server
-import indexer.IndexerApp
-import indexer.RetroIndexApp
+import application.IndexerApp
+import application.RetroIndexApp
+import eventbus.EventBusClient
 import org.apache.log4j.BasicConfigurator
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import server.crawler.CrawlerManager
 import server.indexer.IndexerManager
 import sprink.Scope
+import sprink.Sprink
+import sprink.sprink
 import java.lang.System.exit
+import kotlin.reflect.jvm.javaMethod
 
 fun main(args: Array<String>) {
     BasicConfigurator.configure()
@@ -25,52 +29,56 @@ fun main(args: Array<String>) {
     val module = args[0]
     val host = args[1]
     val port = args[2].toInt()
-    val scope = createScope(host, port)
+
+
+    val sprink = createSprink(host, port, "http://localhost:5000")
 
     when (module) {
-        "crawler" -> runCrawler(scope, port)
-        "indexer" -> runIndexer(scope, port)
-        "store" -> runStore(scope)
-        "crawler_manager" -> runCrawlerManager(port)
-        "indexer_manager" -> runIndexerManager(port)
+        "crawler" -> runCrawler(sprink)
+        "indexer" -> runIndexer(sprink)
+        "store" -> runStore(sprink)
+        "crawler_manager" -> runCrawlerManager(sprink)
+        "indexer_manager" -> runIndexerManager(sprink)
         "bus" -> runBus()
-        "retro_index" -> runRetroIndex(port)
+        "retro_index" -> runRetroIndex(sprink)
     }
 }
 
-fun createScope(s: String, port: Int): Scope {
-    //create event bus client
-    return Scope()
+fun createSprink(host: String, port: Int, eventBusUrl: String): Sprink {
+    val eventBusClient = Client(host, port, eventBusUrl)
+    return sprink {
+        scope {
+            bean(EventBusClient::class.java, eventBusClient)
+        }
+    }
 }
 
-fun runIndexerManager(port: Int) {
-    //TODO: Add sprink
-    val indexerManager = IndexerManager(Client("localhost", port, "http://localhost:5000"))
+fun runIndexerManager(sprink: Sprink) {
+    val indexerManager = IndexerManager(sprink.instanceOf(EventBusClient::class.java))
     indexerManager.run()
 }
 
-fun runCrawlerManager(port: Int) {
-    //TODO: Add sprink
-    val crawlerManager = CrawlerManager(Client("localhost", port, "http://localhost:5000"))
+fun runCrawlerManager(sprink: Sprink) {
+    val crawlerManager = CrawlerManager(sprink.instanceOf(EventBusClient::class.java))
     crawlerManager.run()
 }
 
-fun runRetroIndex(port: Int) {
-    val retroIndexApp = RetroIndexApp(Client("localhost", port, "http://localhost:5000"))
+fun runRetroIndex(sprink: Sprink) {
+    val retroIndexApp = RetroIndexApp(sprink.instanceOf(EventBusClient::class.java))
     retroIndexApp.run()
 }
 
-fun runStore(scope: Scope) {
+fun runStore(sprink: Sprink) {
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 }
 
-fun runIndexer(scope: Scope, port: Int) {
-    val indexerApp = IndexerApp(Client("localhost", port, "http://localhost:5000"))
+fun runIndexer(sprink: Sprink) {
+    val indexerApp = IndexerApp(sprink.instanceOf(EventBusClient::class.java))
     indexerApp.run()
 }
 
-fun runCrawler(s: Scope, port: Int) {
-    val crawlerApp = CrawlerApp(Client("localhost", port, "http://localhost:5000"))
+fun runCrawler(sprink: Sprink) {
+    val crawlerApp = CrawlerApp(sprink.instanceOf(EventBusClient::class.java))
     crawlerApp.run()
 }
 
