@@ -52,9 +52,9 @@ class Server {
         http.post("/event") {
             val cb = CallbackMessage()
             parseBody(request.body()) {
+                cb.channel = it.channel
                 if (channels[it.channel] == null) {
                     LOGGER.error("Channel ${it.channel} does not exist")
-                    cb.channel = it.channel
                     cb.nbListener = 0
                 }
                 else {

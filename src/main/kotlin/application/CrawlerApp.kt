@@ -50,7 +50,7 @@ class CrawlerApp(eventBus: EventBusClient) : App(eventBus) {
             timer.schedule(1000) {
                 notifyCrawlerManager()
             }
-        } else {
+        } else if (response == null) {
             LOGGER.error("Error while parsing response from bus")
         }
     }
