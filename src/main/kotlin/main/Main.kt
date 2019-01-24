@@ -1,30 +1,29 @@
 package main
 
 import application.CrawlerApp
-import eventbus.Client
-import eventbus.Server
 import application.IndexerApp
 import application.RetroIndexApp
-import application.SearchApp
+import eventbus.Client
 import eventbus.EventBusClient
+import eventbus.Server
 import org.apache.log4j.BasicConfigurator
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import server.crawler.CrawlerManager
 import server.indexer.IndexerManager
-import sprink.Scope
 import sprink.Sprink
 import sprink.sprink
 import java.lang.System.exit
-import kotlin.reflect.jvm.javaMethod
 
 fun main(args: Array<String>) {
     BasicConfigurator.configure()
     Logger.getLogger("org").level = Level.ERROR
     Logger.getLogger("akka").level = Level.ERROR
     if (args.size != 3) {
-        println("usage: ./bin [crawler | indexer | store | crawler_manager " +
-                "| crawler_manager | bus | retro_index | search] SERVER_HOST PORT")
+        println(
+            "usage: ./bin [crawler | indexer | store | crawler_manager " +
+                    "| crawler_manager | bus | retro_index] SERVER_HOST PORT"
+        )
         exit(1)
     }
 
@@ -42,8 +41,7 @@ fun main(args: Array<String>) {
         "crawler_manager" -> runCrawlerManager(sprink)
         "indexer_manager" -> runIndexerManager(sprink)
         "bus" -> runBus()
-        "retro_index" -> runRetroIndex(sprink)
-        "search" -> runSearch(port)
+        "retro_index" -> runRetroIndex(12000, sprink)
     }
 }
 
@@ -66,8 +64,8 @@ fun runCrawlerManager(sprink: Sprink) {
     crawlerManager.run()
 }
 
-fun runRetroIndex(sprink: Sprink) {
-    val retroIndexApp = RetroIndexApp(sprink.instanceOf(EventBusClient::class.java))
+fun runRetroIndex(port: Int, sprink: Sprink) {
+    val retroIndexApp = RetroIndexApp(port, sprink.instanceOf(EventBusClient::class.java))
     retroIndexApp.run()
 }
 
@@ -88,8 +86,4 @@ fun runCrawler(sprink: Sprink) {
 fun runBus() {
     val bus = Server()
     bus.run()
-}
-
-fun runSearch(port: Int) {
-    val SearchApp = SearchApp(port, "")
 }
