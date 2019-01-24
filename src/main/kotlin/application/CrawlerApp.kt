@@ -46,8 +46,8 @@ class CrawlerApp(eventBus: EventBusClient) : App(eventBus) {
 
     private fun notifyCrawlerManager() {
         val response = sendMessage(CRAWLER_MANAGER_CHANNEL, REGISTER_CRAWLER, RegisterCrawlerSerializer(uid))
-        LOGGER.info("Crawler Manager not Up yet, retrying in 5 sec...")
         if (response != null && response.nbListener == 0) {
+            LOGGER.info("Crawler Manager not Up yet, retrying in 5 sec...")
             timer.schedule(5000) {
                 notifyCrawlerManager()
             }
