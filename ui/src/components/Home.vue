@@ -1,7 +1,7 @@
 <template>
   <div>
     <input v-model="query" class="search" autofocus>
-    <button class="search-button" @click="search">Hopla</button>
+    <button class="search-button" @click="searchWithButton">Hopla</button>
     <div class="results">
       <div class="lds-circle" v-if="isLoading">
         <div></div>
@@ -98,6 +98,11 @@ export default {
       }
 
       return this.cropToSentence(res, firstHighlightIndex);
+    },
+
+    searchWithButton() {
+      this.page = 1;
+      search();
     },
 
     async search() {
