@@ -21,7 +21,8 @@ class Crawler {
         hrefs.forEach {
             var href = it.attr("href")
             href = href.replace(Regex("\\?.*"), "").removeSuffix("/")
-            if (!href.isEmpty() && !href.startsWith("#")) {
+            href = href.replace(Regex("#.*"), "")
+            if (!href.isEmpty()) {
                 var prefix = ""
                 // for example "/wiki/help"
                 if (!href.startsWith("http") && !href.startsWith("www")) {
@@ -29,11 +30,12 @@ class Crawler {
                     if (baseUrl.startsWith("https")) {
                         url = url.replaceFirst("https://", "")
                         prefix = "https://"
-                    } else if (href.startsWith("http")) {
+                    } else if (baseUrl.startsWith("http")) {
                         url = url.replaceFirst("http://", "")
                         prefix = "http://"
                     }
-                    val domain = url.slice(0 until url.indexOf("/"))
+                    var domain = url.slice(0 until url.indexOf("/"))
+                    domain = if (domain.isEmpty()) url else domain
                     href = "$prefix$domain$href"
                 }
                 urls.add(href)
@@ -55,9 +57,11 @@ class Crawler {
         }
     }
 
-    fun main(args: Array<String>?) {
-        BasicConfigurator.configure()
-        val url = "https://en.wikipedia.org/wiki/Paris"
-        crawl(url)
-    }
+}
+
+fun main(args: Array<String>?) {
+    val crawler = Crawler()
+    BasicConfigurator.configure()
+    val url = "https://insideapp.io"
+    crawler.crawl(url)
 }
