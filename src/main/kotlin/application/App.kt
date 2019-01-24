@@ -1,6 +1,7 @@
 package application
 
 import com.google.gson.Gson
+import eventbus.CallbackMessage
 import eventbus.Client
 import eventbus.EventBusClient
 import eventbus.EventMessage
@@ -30,22 +31,15 @@ abstract class App protected constructor(protected val eventBus: EventBusClient)
         }
     }
 
-    protected fun sendMessage(channel: String, type: String, obj: Any) {
+    protected fun sendMessage(channel: String, type: String, obj: Any): CallbackMessage? {
         try {
             val em = EventMessage(channel, type, Gson().toJson(obj))
-            sendToStore(em)
-            eventBus.publish(em)
+            return eventBus.publish(em)
         } catch (e: Exception) {
-            LOGGER.error("Impossible to send message: ${e.message}")
+            LOGGER.error("Impossible to send message: {}", e.message)
+            return null
         }
     }
 
     abstract fun run()
-
-    protected fun retryIn(seconds: Int, consumer: Runnable) {
-        LOGGER.info("Retry fetching url in {} seconds", seconds)
-        val executor = Executors.newSingleThreadScheduledExecutor()
-        executor.schedule(consumer, seconds.toLong(), TimeUnit.SECONDS)
-        executor.shutdownNow()
-    }
 }

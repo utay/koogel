@@ -50,19 +50,30 @@ class Server {
         }
 
         http.post("/event") {
+            val cb = CallbackMessage()
             parseBody(request.body()) {
-                for (url in channels[it.channel]!!) {
-                    try {
-                        val message = Gson().toJson(it)
-                        val response = Unirest.post(url).body(message).asString()
-                        if (response.status != 200) {
-                            LOGGER.error("Got ${response.status}, expected 200")
+                if (channels[it.channel] == null) {
+                    LOGGER.error("Channel ${it.channel} does not exist")
+                    cb.channel = it.channel
+                    cb.nbListener = 0
+                }
+                else {
+                    val urls = channels[it.channel]!!
+                    for (url in urls) {
+                        try {
+                            val message = Gson().toJson(it)
+                            val response = Unirest.post(url).body(message).asString()
+                            if (response.status != 200) {
+                                LOGGER.error("Got ${response.status}, expected 200")
+                            }
+                        } catch (e: Exception) {
+                            LOGGER.error("Event received: ${e.message}")
                         }
-                    } catch (e: Exception) {
-                        LOGGER.error("Event received: ${e.message}")
                     }
+                    cb.nbListener = urls.size
                 }
             }
+            Gson().toJson(cb)
         }
     }
 }
