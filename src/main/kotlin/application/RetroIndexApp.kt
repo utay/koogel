@@ -43,6 +43,7 @@ class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(event
             }
         }
         http.get("/search") {
+            response.type("application/json")
             val query = request.queryParams("q")
             val limit = request.queryParams("limit")?.toInt() ?: 10
             val offset = request.queryParams("offset")?.toInt() ?: 0
