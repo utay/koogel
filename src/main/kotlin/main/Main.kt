@@ -4,6 +4,7 @@ import crawler.CrawlerApp
 import eventbus.Client
 import eventbus.Server
 import indexer.IndexerApp
+import indexer.RetroIndexApp
 import org.apache.log4j.BasicConfigurator
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
@@ -17,7 +18,7 @@ fun main(args: Array<String>) {
     Logger.getLogger("org").level = Level.ERROR
     Logger.getLogger("akka").level = Level.ERROR
     if (args.size != 3) {
-        println("usage: ./bin [crawler | indexer | store | crawler_manager | crawler_manager | bus] SERVER_HOST PORT")
+        println("usage: ./bin [crawler | indexer | store | crawler_manager | crawler_manager | bus | retro_index] SERVER_HOST PORT")
         exit(1)
     }
 
@@ -33,6 +34,7 @@ fun main(args: Array<String>) {
         "crawler_manager" -> runCrawlerManager(port)
         "indexer_manager" -> runIndexerManager(port)
         "bus" -> runBus()
+        "retro_index" -> runRetroIndex(port)
     }
 }
 
@@ -51,6 +53,11 @@ fun runCrawlerManager(port: Int) {
     //TODO: Add sprink
     val crawlerManager = CrawlerManager(Client("localhost", port, "http://localhost:5000"))
     crawlerManager.run()
+}
+
+fun runRetroIndex(port: Int) {
+    val retroIndexApp = RetroIndexApp(Client("localhost", port, "http://localhost:5000"))
+    retroIndexApp.run()
 }
 
 fun runStore(scope: Scope) {

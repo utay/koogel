@@ -2,8 +2,8 @@ package search
 
 import crawler.Lexer
 import indexer.Document
+import indexer.Index
 import indexer.Indexer
-import indexer.index
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -19,12 +19,12 @@ class Search {
         private val LOGGER: Logger = LoggerFactory.getLogger(Search::class.java)
     }
 
-    private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>): Double {
+    private fun tfIdf(token: String, doc: Document, docs: HashSet<Document>, docsSize: Int): Double {
         val tf: Double = doc.metadata[token]?.frequency ?: return 0.0
         val numberDocument = docs.filter { d -> d.metadata.containsKey(token) }.size
         if (numberDocument == 0)
             return 0.0
-        val idf = abs(log10(index.documents.size.toDouble() / (numberDocument.toDouble())))
+        val idf = abs(log10(docsSize.toDouble() / (numberDocument.toDouble())))
         return tf * idf
     }
 
@@ -57,7 +57,7 @@ class Search {
         val docs = HashSet<Document>()
 
         for (token in page.content) {
-            val documents = index.retroIndex[token] ?: continue
+            val documents = Index().retroIndex[token] ?: continue
             docs.addAll(documents)
         }
 
@@ -69,9 +69,9 @@ class Search {
         docs.forEach { doc -> documentVectors[doc] = Vector() }
 
         for (token in page.content) {
-            queryValue.add(tfIdf(token, docQuery, docs))
+            queryValue.add(tfIdf(token, docQuery, docs, Index().documents.size))
             docs.forEach { doc ->
-                documentVectors[doc]?.add(tfIdf(token, doc, docs))
+                documentVectors[doc]?.add(tfIdf(token, doc, docs, Index().documents.size))
             }
         }
 
