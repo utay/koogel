@@ -1,17 +1,33 @@
 <template>
   <div>
     <input v-model="query" class="search" autofocus>
+    <button class="search-button" @click="search">Hopla</button>
     <div class="results">
-      <p class="nb-results">{{ results.length }} results in {{ time }} seconds</p>
-      <div v-for="result in results" :key="result.id" class="result">
-        <a :href="result.url" class="url">{{ result.url }}</a>
-        <p v-html="highlight(result)"></p>
+      <div class="lds-circle" v-if="isLoading">
+        <div></div>
+      </div>
+
+      <div v-if="!isLoading">
+        <p class="nb-results">{{ totalResults }} results in {{ time }} seconds</p>
+        <div v-for="result in results" :key="result.id" class="result">
+          <a :href="result.URL" class="url">{{ result.URL }}</a>
+          <p v-html="highlight(result)" class="resume"></p>
+        </div>
+      </div>
+
+      <div v-if="results.length !== 0" class="pages">
+        <div v-for="p in pages()" :key="p" @click="setPage(p + 1)">
+          <span v-if="page === p + 1" class="page-active">{{ p + 1 }}</span>
+          <span v-else class="page">{{ p + 1 }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 String.prototype.splice = function(idx, rem, str) {
   return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
 };
@@ -23,51 +39,105 @@ export default {
     return {
       query: "",
       time: 0,
+      totalResults: 0,
       isLoading: false,
-      results: Array.apply(null, { length: 10 }).map(Function.call, () => ({
-        id: Math.random(),
-        url: "http://wikipedia.org",
-        resume:
-          "test ɛst masculin ... elles prennent ceux de test, de coquille ou d'écaille, selon leur plus ou moins de consistance. ... prendre l'empreinte du test disparu.",
-        highlights: [[10, 8], [23, 5]]
-      }))
+      results: [],
+      page: 1,
+      resultsPerPage: 10,
+      limit: 10
     };
   },
 
   watch: {
-    query: async function(val, oldVal) {
-      this.isLoading = true;
-
-      const start = new Date().getTime();
-      let j = 0;
-      for (let i = 0; i < 500000; ++i) {
-        j++;
-      }
-      const end = new Date().getTime();
-
-      this.time = (end - start) / 1000;
-      this.isLoading = false;
+    page(oldVal, val) {
+      this.search();
     }
   },
 
   methods: {
+    pages() {
+      return [
+        ...Array(Math.round(this.totalResults / this.resultsPerPage + 1)).keys()
+      ];
+    },
+
+    isLetter(str) {
+      return str.length === 1 && str.match(/[a-z]/i);
+    },
+
+    cropToSentence(str, firstHighlightIndex) {
+      if (firstHighlightIndex == -1) {
+        return str;
+      }
+
+      let capitalLetterIndex = 0;
+      for (let i = firstHighlightIndex; i > 0; --i) {
+        if (this.isLetter(str[i]) && str[i] === str[i].toUpperCase()) {
+          capitalLetterIndex = i;
+          break;
+        }
+      }
+
+      return str.substring(capitalLetterIndex);
+    },
+
     highlight(result) {
-      if (result.highlights.length == 0) {
-        return result.resume;
-      }
-
-      let res = result.resume;
-
+      let res = result.rawContent;
       let i = 0;
+      let firstHighlightIndex = -1;
 
-      for (const highlight of result.highlights) {
-        res = res.splice(highlight[0] - 1 + i, 0, "<b>");
-        i += 3;
-        res = res.splice(highlight[0] - 1 + highlight[1] + i, 0, "</b>");
-        i += 4;
+      for (const term in result.metadata) {
+        for (const index of result.metadata[term].rawIndices) {
+          const highlight = [index, term.length];
+          firstHighlightIndex = index;
+          res = res.splice(highlight[0] - 1 + i, 0, "<b>");
+          i += 3;
+          res = res.splice(highlight[0] - 1 + highlight[1] + i, 0, "</b>");
+          i += 4;
+        }
       }
 
-      return res;
+      return this.cropToSentence(res, firstHighlightIndex);
+    },
+
+    async search() {
+      this.isLoading = true;
+
+      const start = new Date().getTime();
+      const response = await axios.get(
+        `http://localhost:12000/search?q=${this.query}&limit=${
+          this.limit
+        }&offset=${(this.page - 1) * this.resultsPerPage}`
+      );
+      const end = new Date().getTime();
+
+      // const response = {
+      //   data: {
+      //     query: "insideapp",
+      //     documents: [
+      //       {
+      //         URL: "https://insideapp.io",
+      //         metadata: {
+      //           insideapp: {
+      //             rawIndices: [12]
+      //           }
+      //         },
+      //         rawContent:
+      //           "jean. Toto insideapp cacainsideapp insideapp insideapp insideainsideapp insideapp insideapp insideapp insideapp insidinsideapp insideapp insideapp insideapp insidinsideapp insideapp insideapp insideapp insidinsideapp insideapp insidinsiinsideapp insideapp ccdeinsideapp cainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccceainsideapp cpinsideapp cpinsideapp c insideapp ccinsideapp ccccccppinsideapp c insideapp ccinsideapp cccc"
+      //       }
+      //     ],
+      //     totalResults: 1
+      //   }
+      // };
+
+      this.results = response.data.documents;
+      this.totalResults = response.data.totalResults;
+      this.time = (end - start) / 1000;
+      this.isLoading = false;
+    },
+
+    setPage(page) {
+      this.page = page;
     }
   }
 };
@@ -83,6 +153,10 @@ export default {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   font-size: 22px;
   margin-bottom: 15px;
+}
+
+.search-button {
+  margin-left: 20px;
 }
 
 input:focus {
@@ -116,5 +190,69 @@ input:focus {
 
 .result p {
   margin-top: 8px;
+}
+
+.resume {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page {
+  cursor: pointer;
+  color: #1a0dab;
+  margin-right: 5px;
+}
+
+.page:hover {
+  text-decoration: underline;
+}
+
+.page-active {
+  margin-right: 5px;
+  color: black;
+}
+
+.page-active:hover {
+  text-decoration: none;
+}
+
+.pages {
+  display: flex;
+  justify-content: center;
+}
+
+.lds-circle {
+  display: inline-block;
+  transform: translateZ(1px);
+}
+
+.lds-circle > div {
+  display: inline-block;
+  width: 51px;
+  height: 51px;
+  margin: 6px;
+  border-radius: 50%;
+  background: #d8d8d8;
+  animation: lds-circle 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes lds-circle {
+  0%,
+  100% {
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(1800deg);
+    animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+  }
+  100% {
+    transform: rotateY(3600deg);
+  }
 }
 </style>

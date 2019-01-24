@@ -13,6 +13,7 @@ import server.crawler.CrawlerManager
 import server.indexer.IndexerManager
 import sprink.Sprink
 import sprink.sprink
+import store.EventStore
 import java.lang.System.exit
 
 fun main(args: Array<String>) {
@@ -70,7 +71,8 @@ fun runRetroIndex(port: Int, sprink: Sprink) {
 }
 
 fun runStore(sprink: Sprink) {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val eventStoreApp = EventStore(sprink.instanceOf(EventBusClient::class.java))
+    eventStoreApp.run()
 }
 
 fun runIndexer(sprink: Sprink) {
