@@ -3,7 +3,6 @@ package application
 import Utils
 import com.google.gson.Gson
 import crawler.Crawler
-import eventbus.Client
 import eventbus.EventBusClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,6 +16,8 @@ import server.crawler.RegisterCrawlerSerializer
 import server.indexer.AddPageToIndexSerializer
 import server.indexer.IndexerCommand.Companion.ADD_PAGE_TO_INDEX
 import server.indexer.IndexerManager.Companion.INDEXER_MANAGER_CHANNEL
+import java.util.*
+import kotlin.concurrent.schedule
 
 class CrawlerApp(eventBus: EventBusClient) : App(eventBus) {
 
@@ -24,6 +25,7 @@ class CrawlerApp(eventBus: EventBusClient) : App(eventBus) {
         private val LOGGER: Logger = LoggerFactory.getLogger(CrawlerApp::class.java)
     }
 
+    private val timer = Timer("schedule", true)
     private val crawler: Crawler = Crawler()
 
     init {
@@ -35,11 +37,23 @@ class CrawlerApp(eventBus: EventBusClient) : App(eventBus) {
             }
         }
         eventBus.subscribe("crawl_$uid", eventBus.getCallBackURL("/event"))
-        sendMessage(CRAWLER_MANAGER_CHANNEL, REGISTER_CRAWLER, RegisterCrawlerSerializer(uid))
+        notifyCrawlerManager()
     }
 
     override fun run() {
         LOGGER.info("Crawler '$uid' started")
+    }
+
+    private fun notifyCrawlerManager() {
+        val response = sendMessage(CRAWLER_MANAGER_CHANNEL, REGISTER_CRAWLER, RegisterCrawlerSerializer(uid))
+        if (response != null && response.nbListener == 0) {
+            LOGGER.info("Crawler Manager not Up yet, retrying in 5 sec...")
+            timer.schedule(5000) {
+                notifyCrawlerManager()
+            }
+        } else if (response == null) {
+            LOGGER.error("Error while parsing response from bus")
+        }
     }
 
     private fun startCrawling(crawlSerializer: CrawlSerializer) {

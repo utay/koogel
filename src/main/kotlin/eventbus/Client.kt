@@ -22,14 +22,16 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) :
         }
     }
 
-    override fun publish(eventMessage: EventMessage) {
+    override fun publish(eventMessage: EventMessage): CallbackMessage? {
         val serializedMessage = Gson().toJson(eventMessage)
         try {
-            Unirest.post("$eventBusUrl/event").header("accept", "application/json")
-                .body(serializedMessage).asStringAsync()
+            val response = Unirest.post("$eventBusUrl/event").header("accept", "application/json")
+                .body(serializedMessage).asString()
             LOGGER.info("Published to channel ${eventMessage.channel}")
+            return Gson().fromJson(response.body, CallbackMessage::class.java)
         } catch (e: Exception) {
             LOGGER.error("Publish error: ${e.message}")
+            return null
         }
     }
 
