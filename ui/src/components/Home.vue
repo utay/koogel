@@ -102,7 +102,7 @@ export default {
 
     searchWithButton() {
       this.page = 1;
-      search();
+      this.search();
     },
 
     async search() {
