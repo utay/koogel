@@ -2,7 +2,6 @@ package eventbus
 
 import com.google.gson.Gson
 import com.mashape.unirest.http.Unirest
-import jdk.nashorn.internal.codegen.CompilerConstants
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import spark.kotlin.Http
