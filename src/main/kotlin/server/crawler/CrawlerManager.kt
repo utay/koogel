@@ -3,16 +3,13 @@ package server.crawler
 import Utils
 import application.App
 import com.google.gson.Gson
-import eventbus.Client
 import eventbus.EventBusClient
-import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.crawler.CrawlerCommand.Companion.CRAWL
 import server.crawler.CrawlerCommand.Companion.CRAWL_ENDED
 import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
 import java.util.concurrent.LinkedBlockingQueue
-import kotlin.collections.HashSet
 
 class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
 
@@ -26,7 +23,7 @@ class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
     private val urlSeen = HashSet<String>()
 
     init {
-        urlQueue.add("http://www.wikipedia.com")
+        urlQueue.add("https://insideapp.io")
         eventBus.addHandler("/event") {
             Utils.parseBody(request.body()) {
                 when (it.type) {

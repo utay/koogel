@@ -14,6 +14,8 @@ import search.Search
 import server.indexer.AddDocumentToIndexSerializer
 import server.indexer.IndexerCommand.Companion.ADD_DOCUMENT_TO_INDEX
 import spark.kotlin.ignite
+import kotlin.math.max
+import kotlin.math.min
 
 class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(eventBusClient) {
 
@@ -42,7 +44,10 @@ class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(event
         }
         http.get("/search") {
             val query = request.queryParams("q")
-            Gson().toJson(search(query))
+            val limit = request.queryParams("limit")?.toInt() ?: 10
+            val offset = request.queryParams("offset")?.toInt() ?: 0
+            val searchResult = search(query, limit, offset)
+            Gson().toJson(searchResult)
         }
         eventBusClient.subscribe(RETRO_INDEX_CHANNEL, eventBusClient.getCallBackURL("/event"))
     }
@@ -57,7 +62,14 @@ class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(event
         LOGGER.info("Add document with url ${addDocumentToIndexSerializer.document.URL}")
     }
 
-    private fun search(query: String): ResultSearchSerializer {
+    private fun cleanSearchResult(docs: ArrayList<Document>, query: Document): ArrayList<Document> {
+        docs.forEach {
+            it.metadata = HashMap(it.metadata.filter { meta -> query.metadata.containsKey(meta.key) })
+        }
+        return docs
+    }
+
+    private fun search(query: String, limit: Int, offset: Int): ResultSearchSerializer {
         val page = Lexer.lex(query)
         val doc = Indexer().getDocument(page)
         val docs = hashSetOf<Document>()
@@ -66,7 +78,12 @@ class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(event
                 docs.addAll(it)
             }
         }
-        val listDocuments = search.searchQuery(doc, docs, index.documents.size.toLong())
-        return ResultSearchSerializer(query, listDocuments)
+
+        var listDocuments = search.searchQuery(doc, docs, index.documents.size.toLong())
+        val total = listDocuments.size
+        val min = min(offset, max(total - 1, 0))
+        val max = min(min + limit, total)
+        listDocuments = ArrayList(listDocuments.subList(min, max))
+        return ResultSearchSerializer(query, cleanSearchResult(listDocuments, doc), total)
     }
 }
