@@ -4,7 +4,6 @@ import Utils
 import application.App
 import com.google.gson.Gson
 import crawler.Page
-import eventbus.Client
 import eventbus.EventBusClient
 import eventbus.EventMessage
 import org.slf4j.Logger
@@ -13,6 +12,7 @@ import server.indexer.IndexerCommand.Companion.ADD_PAGE_TO_INDEX
 import server.indexer.IndexerCommand.Companion.END_INDEXING
 import server.indexer.IndexerCommand.Companion.INDEX_PAGE
 import server.indexer.IndexerCommand.Companion.REGISTER_INDEXER
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingDeque
 
 class IndexerManager(eventBusClient: EventBusClient) : App(eventBusClient) {
@@ -23,7 +23,7 @@ class IndexerManager(eventBusClient: EventBusClient) : App(eventBusClient) {
     }
 
     private val pagesToIndex = LinkedBlockingDeque<Page>()
-    private val indexers = hashMapOf<String, Boolean>()
+    private val indexers = ConcurrentHashMap<String, Boolean>()
 
     init {
         eventBusClient.addHandler("/event") {

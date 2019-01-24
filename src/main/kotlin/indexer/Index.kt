@@ -1,9 +1,11 @@
 package indexer
 
+import java.util.concurrent.ConcurrentHashMap
+
 class Index {
 
     var documents: ArrayList<Document> = ArrayList()
-    var retroIndex: HashMap<String, ArrayList<Document>> = HashMap()
+    var retroIndex: ConcurrentHashMap<String, ArrayList<Document>> = ConcurrentHashMap()
 
     private fun addTermWithDocument(term: String, doc: Document) {
         if (retroIndex.containsKey(term)) {

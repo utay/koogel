@@ -4,11 +4,13 @@ import Utils
 import application.App
 import com.google.gson.Gson
 import eventbus.EventBusClient
+import org.eclipse.jetty.util.ConcurrentHashSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.crawler.CrawlerCommand.Companion.CRAWL
 import server.crawler.CrawlerCommand.Companion.CRAWL_ENDED
 import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 
 class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
@@ -18,9 +20,9 @@ class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
         const val CRAWLER_MANAGER_CHANNEL = "crawler_manager"
     }
 
-    private val crawlers = hashMapOf<String, Boolean>()
+    private val crawlers = ConcurrentHashMap<String, Boolean>()
     private val urlQueue = LinkedBlockingQueue<String>()
-    private val urlSeen = HashSet<String>()
+    private val urlSeen = ConcurrentHashSet<String>()
 
     init {
         urlQueue.add("https://insideapp.io")
