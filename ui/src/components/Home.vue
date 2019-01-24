@@ -35,6 +35,15 @@ String.prototype.splice = function(idx, rem, str) {
 export default {
   name: "Home",
 
+  mounted() {
+    document.querySelector(".search").addEventListener("keypress", e => {
+      const key = e.which || e.keyCode;
+      if (key === 13) {
+        this.searchWithButton();
+      }
+    });
+  },
+
   data() {
     return {
       query: "",
