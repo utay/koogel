@@ -89,7 +89,7 @@ export default {
       for (const term in result.metadata) {
         for (const index of result.metadata[term].rawIndices) {
           const highlight = [index, term.length];
-          if (firstHighlightIndex !== -1) firstHighlightIndex = index;
+          if (firstHighlightIndex === -1) firstHighlightIndex = index;
           res = res.splice(highlight[0] - 1 + i, 0, "<b>");
           i += 3;
           res = res.splice(highlight[0] - 1 + highlight[1] + i, 0, "</b>");
