@@ -34,6 +34,7 @@ abstract class App protected constructor(protected val eventBus: EventBusClient)
     protected fun sendMessage(channel: String, type: String, obj: Any): CallbackMessage? {
         try {
             val em = EventMessage(channel, type, Gson().toJson(obj))
+            sendToStore(em)
             return eventBus.publish(em)
         } catch (e: Exception) {
             LOGGER.error("Impossible to send message: {}", e.message)
