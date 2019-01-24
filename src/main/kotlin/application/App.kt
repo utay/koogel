@@ -2,6 +2,7 @@ package application
 
 import com.google.gson.Gson
 import eventbus.Client
+import eventbus.EventBusClient
 import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,7 +11,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 
-abstract class App protected constructor(protected val eventBus: Client) {
+abstract class App protected constructor(protected val eventBus: EventBusClient) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(App::class.java)

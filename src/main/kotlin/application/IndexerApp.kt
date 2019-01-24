@@ -1,9 +1,10 @@
-package indexer
+package application
 
-import application.App
 import com.google.gson.Gson
 import eventbus.Client
-import indexer.RetroIndexApp.Companion.RETRO_INDEX_CHANNEL
+import indexer.Indexer
+import application.RetroIndexApp.Companion.RETRO_INDEX_CHANNEL
+import eventbus.EventBusClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import server.indexer.AddDocumentToIndexSerializer
@@ -16,7 +17,7 @@ import server.indexer.IndexerCommand.Companion.REGISTER_INDEXER
 import server.indexer.IndexerManager.Companion.INDEXER_MANAGER_CHANNEL
 import server.indexer.RegisterIndexerSerializer
 
-class IndexerApp(eventBusClient: Client): App(eventBusClient) {
+class IndexerApp(eventBusClient: EventBusClient): App(eventBusClient) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(IndexerApp::class.java)
@@ -32,8 +33,7 @@ class IndexerApp(eventBusClient: Client): App(eventBusClient) {
                 }
             }
         }
-        val callBackUrl = "http://${eventBusClient.host}:${eventBusClient.port}/event"
-        eventBusClient.subscribe("indexer_$uid", callBackUrl)
+        eventBusClient.subscribe("indexer_$uid", eventBusClient.getCallBackURL("/event"))
         sendMessage(INDEXER_MANAGER_CHANNEL, REGISTER_INDEXER, RegisterIndexerSerializer(uid))
     }
 

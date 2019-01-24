@@ -23,7 +23,7 @@ class Aspect<T>(private val instance: T) : InvocationHandler {
             if (args == null) {
                 method?.invoke(instance)
             } else {
-                method?.invoke(instance, args)
+                method?.invoke(instance, *args)
             }
         }
 

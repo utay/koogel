@@ -4,6 +4,7 @@ import Utils
 import application.App
 import com.google.gson.Gson
 import eventbus.Client
+import eventbus.EventBusClient
 import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,7 +14,7 @@ import server.crawler.CrawlerCommand.Companion.REGISTER_CRAWLER
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.HashSet
 
-class CrawlerManager(eventBus: Client) : App(eventBus) {
+class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(CrawlerManager::class.java)
@@ -39,7 +40,7 @@ class CrawlerManager(eventBus: Client) : App(eventBus) {
                 }
             }
         }
-        eventBus.subscribe(CRAWLER_MANAGER_CHANNEL, "http://${eventBus.host}:${eventBus.port}/event")
+        eventBus.subscribe(CRAWLER_MANAGER_CHANNEL, eventBus.getCallBackURL("/event"))
     }
 
     private fun registerCrawler(registerCrawlerSerializer: RegisterCrawlerSerializer) {

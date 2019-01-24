@@ -8,7 +8,7 @@ import spark.kotlin.Http
 import spark.kotlin.RouteHandler
 import spark.kotlin.ignite
 
-class Client(val host: String, val port: Int, private val eventBusUrl: String) {
+class Client(val host: String, val port: Int, private val eventBusUrl: String) : EventBusClient {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(Client::class.java)
@@ -16,13 +16,13 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
 
     private val http: Http = ignite().port(port)
 
-    fun addHandler(path: String, routeHandler: RouteHandler.() -> Any) {
+    override fun addHandler(path: String, routeHandler: RouteHandler.() -> Any) {
         http.post(path) {
             routeHandler()
         }
     }
 
-    fun publish(eventMessage: EventMessage) {
+    override fun publish(eventMessage: EventMessage) {
         val serializedMessage = Gson().toJson(eventMessage)
         try {
             Unirest.post("$eventBusUrl/event").header("accept", "application/json")
@@ -33,7 +33,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
         }
     }
 
-    fun subscribe(channel: String, callbackUrl: String) {
+    override fun subscribe(channel: String, callbackUrl: String) {
         val subscribeMessage = SubscribeMessage(callbackUrl)
         val eventMessage = EventMessage(channel, "SUBSCRIBE", Gson().toJson(subscribeMessage))
         try {
@@ -45,7 +45,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
         }
     }
 
-    fun unsubscribe(channel: String, callbackUrl: String) {
+    override fun unsubscribe(channel: String, callbackUrl: String) {
         val subscribeMessage = SubscribeMessage(callbackUrl)
         val eventMessage = EventMessage(channel, "UNSUBSCRIBE", Gson().toJson(subscribeMessage))
         try {
@@ -57,4 +57,7 @@ class Client(val host: String, val port: Int, private val eventBusUrl: String) {
         }
     }
 
+    override fun getCallBackURL(path: String): String {
+        return "http://$host:$port$path"
+    }
 }

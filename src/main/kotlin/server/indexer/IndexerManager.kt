@@ -5,6 +5,7 @@ import application.App
 import com.google.gson.Gson
 import crawler.Page
 import eventbus.Client
+import eventbus.EventBusClient
 import eventbus.EventMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +15,7 @@ import server.indexer.IndexerCommand.Companion.INDEX_PAGE
 import server.indexer.IndexerCommand.Companion.REGISTER_INDEXER
 import java.util.concurrent.LinkedBlockingDeque
 
-class IndexerManager(eventBusClient: Client) : App(eventBusClient) {
+class IndexerManager(eventBusClient: EventBusClient) : App(eventBusClient) {
 
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(IndexerManager::class.java)
@@ -34,8 +35,7 @@ class IndexerManager(eventBusClient: Client) : App(eventBusClient) {
                 }
             }
         }
-        val callBackUrl = "http://${eventBusClient.host}:${eventBusClient.port}/event"
-        eventBusClient.subscribe(INDEXER_MANAGER_CHANNEL, callBackUrl)
+        eventBusClient.subscribe(INDEXER_MANAGER_CHANNEL, eventBusClient.getCallBackURL("/event"))
     }
 
     override fun run() {
