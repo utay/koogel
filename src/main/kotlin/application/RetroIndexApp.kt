@@ -17,6 +17,7 @@ import spark.kotlin.ignite
 import kotlin.math.max
 import kotlin.math.min
 
+
 class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(eventBusClient) {
 
     companion object {
@@ -42,8 +43,26 @@ class RetroIndexApp(searchPort: Int, eventBusClient: EventBusClient) : App(event
                 }
             }
         }
+        http.options("/*") {
+            val accessControlRequestHeaders = request.headers("Access-Control-Request-Headers")
+            if (accessControlRequestHeaders != null) {
+                response.header(
+                    "Access-Control-Allow-Headers",
+                    accessControlRequestHeaders
+                )
+            }
+            val accessControlRequestMethod = request
+                .headers("Access-Control-Request-Method")
+            if (accessControlRequestMethod != null) {
+                response.header(
+                    "Access-Control-Allow-Methods",
+                    accessControlRequestMethod
+                )
+            }
+        }
+        http.before { response.header("Access-Control-Allow-Origin", "*") }
+        http.after { response.type("application/json") }
         http.get("/search") {
-            response.type("application/json")
             val query = request.queryParams("q")
             val limit = request.queryParams("limit")?.toInt() ?: 10
             val offset = request.queryParams("offset")?.toInt() ?: 0

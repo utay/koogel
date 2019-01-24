@@ -25,7 +25,12 @@ class CrawlerManager(eventBus: EventBusClient) : App(eventBus) {
     private val urlSeen = ConcurrentHashSet<String>()
 
     init {
-        urlQueue.add("https://insideapp.io")
+        urlQueue.addAll(
+            arrayListOf(
+                "https://moz.com/top500",
+                "https://insideapp.io"
+            )
+        )
         eventBus.addHandler("/event") {
             Utils.parseBody(request.body()) {
                 when (it.type) {
