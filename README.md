@@ -16,7 +16,7 @@ $ java -jar build/libs/koogel-1.0-SNAPSHOT-all.jar
 
 ### Backend
 
-There is several available modules:
+There are several available modules:
 - bus: custom HTTP event bus with channels and messages
 - store: store the events
 - crawler\_manager: logic and load balancing between the crawlers
